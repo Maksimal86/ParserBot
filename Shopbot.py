@@ -30,8 +30,8 @@ async def send_message(message):
     btn5=types.KeyboardButton('сбор данных')
     but.add(btn1, btn2, btn3, btn4, btn5)
 
-
     if message['text'][:12] == 'https://sber' or message['text'][:16] == 'https://www.ozon':
+        await bot.send_message(message.from_user.id, 'обрабатываю запрос...', reply_markup=but)
         await sbor_ozon_sber(message)
     elif message['text'] == 'Dogs Chappi Ozon':
         print(type(message))
@@ -55,7 +55,7 @@ async def send_message(message):
     elif message['text'] == 'старт':
         await auto_start()
     else:
-        await bot.send_message(message.chat.id, 'Неизвестная команда')
+        await bot.send_message(message.chat.id, 'Неизвестная \n команда')
     mess_ref = message
 # Сделать так, чтобы запуск проходил 1 раз по всем файлам за 1 True из timer
 async def auto_start():
@@ -87,7 +87,8 @@ async def auto_start():
                             print('str87 итерация for окончена')
                         print('str88 for окончен')
                         if schetchik == len(list_files):
-                            print("str90 счетчик ", schetchik, "большой перерыв")                           await asyncio.sleep(14400)
+                            print("str90 счетчик ", schetchik, "большой перерыв")
+                            await asyncio.sleep(14400)
 
 def l_ref(userid): # возвращаем список ссылок из файла
     with open (f'monitor_list_ref{userid}.txt','a+', encoding='utf-8', errors='ignore') as file:
@@ -151,7 +152,7 @@ async def sbor_ozon_sber(message): # функция вызвана с перво
         if l_ref(message['from']['id']) == []:  # если в списке ссылок еще ничего нет
             print('str152, ссылка не  в списке' + str(message['text']), l_ref(message.from_user.id))
             for i in list_sber:
-                await bot.send_message(message.from_user.id, i,
+                await bot.send_message(message.from_user.id, str(i),
                                        reply_markup=klava)  # вызываем соответствующую инлайн клавиатуру с вопросом "начать отслеживать"
         else:  # если список не пуст
             for j in l_ref(message['from']['id']):  # проверяем вхождение текущей ссылки запроса в список проверяемых ссылок
@@ -160,11 +161,11 @@ async def sbor_ozon_sber(message): # функция вызвана с перво
                 schsb+=1
                 if message['text'] + '\n' == j:  ########## если  ссылка в списке
                     for i in list_sber:
-                        await bot.send_message(message['from']['id'], i,
+                        await bot.send_message(message['from']['id'], str(i),
                                                reply_markup=klava2)  # вызываем клавиатуру с вопросом " закончить отслеживать"
                         print('str165 ссылка в списке ')
                     break
-                elif schsb == len(l_ref(message['from']['id'])): # проверяем наличие ссылки в последнее строке списка,
+                elif schsb == len(l_ref(message['from']['id'])): # проверяем наличие ссылки в последнее строке списка
                     print('str168, ссылка не  в списке ' + str(message['text']), l_ref(message['from']['id']))
                     for i in list_sber:
                         await bot.send_message(message.from_user.id, i,

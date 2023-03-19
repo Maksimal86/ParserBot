@@ -96,12 +96,14 @@ def ozon(ref):
             tuple_return = title_massa.title_m(title.text, price, discont='0')
 
             try:
-                # res_dict  для товаров с массой
-                if len(tuple_return)==4:
-                    res_dict[tuple_return[0]] = 'руб/кг' + tuple_return[1] + ' ' + tuple_return[2].strip() + ' руб, бонусы ' + str(tuple_return[3]) + refs
-                else:
-                    # res_dict  для штучных товаров
-                    res_dict2[float(tuple_return[0])] = 'руб' + tuple_return[1] + '   бонусы -' + tuple_return[2].strip() + ' руб,' + refs
+                ## res_dict  для товаров с массой
+                    if len(tuple_return) == 4:
+                        res_dict[tuple_return[0]] = 'руб/кг\n' + tuple_return[1] + '\n '+'Цена за единицу товара -' + tuple_return[
+                            2].strip() + ' руб., бонусы ' + str(tuple_return[3]) +" руб.\n"+ ref
+                    else:
+                        # res_dict  для штучных товаров
+                        res_dict2[float(tuple_return[0])] = 'руб\n' + tuple_return[1] +'\n'+ '   бонусы -' + tuple_return[
+                            2].strip() + ' руб\n' + ref
             except:
                 print('error res_dict', sys.exc_info())
 
@@ -109,7 +111,7 @@ def ozon(ref):
         driver.close()
         driver.quit()
     try:
-        if len(res_dict) > len(res_dict2):
+        if len(res_dict)*2 > len(res_dict2):
             result = sorted(res_dict.keys())
         else:
             result = sorted(res_dict2.keys())
@@ -123,7 +125,7 @@ def ozon(ref):
     for key in result:
         n+=1
         print('№', n, str(key) + '-' + res_dict[key].translate({ord(i): " " for i in "'' "}))
-        ozon_return.append (('№', n, str(key) + '-' + res_dict[key].translate({ord(i): " " for i in "'' "})))
+        ozon_return.append (('№'+ str(n)+'   '+ str(key) + '-' + res_dict[key].translate({ord(i): " " for i in "'' "})))
         if n==quantly_res:
             break
     return ozon_return
