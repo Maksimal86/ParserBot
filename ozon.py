@@ -99,11 +99,11 @@ def ozon(ref):
                 ## res_dict  для товаров с массой
                     if len(tuple_return) == 4:
                         res_dict[tuple_return[0]] = 'руб/кг\n' + tuple_return[1] + '\n '+'Цена за единицу товара -' + tuple_return[
-                            2].strip() + ' руб., бонусы ' + str(tuple_return[3]) +" руб.\n"+ ref
+                            2].strip() + ' руб., бонусы ' + str(tuple_return[3]) +" руб.\n"+ refs
                     else:
                         # res_dict  для штучных товаров
                         res_dict2[float(tuple_return[0])] = 'руб\n' + tuple_return[1] +'\n'+ '   бонусы -' + tuple_return[
-                            2].strip() + ' руб\n' + ref
+                            2].strip() + ' руб\n' + refs
             except:
                 print('error res_dict', sys.exc_info())
 

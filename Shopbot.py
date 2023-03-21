@@ -13,7 +13,7 @@ dp=Dispatcher(bot)
 moni=1
 mess_id=''
 mess_ref=''
-time_monitor1='10:00'
+time_monitor1='10:40'
 time_monitor2='18:00'
 @dp.message_handler(content_types=['text'])
 async def send_message(message):
@@ -67,15 +67,16 @@ async def auto_start():
             for root, dirs, files in os.walk("."):
                 for filename in files:
                     if filename[:11] == 'monitor_ref':
-                        list_files.append(filename)
+                        list_files.append(filename) # собрали все файлы, связанные с отслеживанием
             for i in list_files:
                 with open(i, 'r', encoding='utf-8', errors='ignore') as file:
                     schetchik+=1
                     mon_ref=file.readline() # получили True
                     message=file.readline()#получили строку message, записанную в файл
-                    message = json.loads(message) #переводим строку в словарь
-                    print('str77',mon_ref)
-                    if mon_ref == 'True\n': # проверяем, что файл содержит True
+                    print('str76','message', message, type(message))
+
+                    if mon_ref == 'True\n' and message: # проверяем, что файл содержит True
+                        message = json.loads(message)  # переводим строку в словарь
                         print("str79 message", message)
                         for i in l_ref(message['from']['id']):  # передали список ссылок из файла monitor_list_ref()
                             print(l_ref(message['from']['id']))
@@ -112,7 +113,7 @@ async def add_l_ref(callback: types.CallbackQuery):
                 continue
         else:  # а если всё-таки равно
             if callback["from"]["id"] == mess_ref["from"]["id"]:
-                file.write(str(mess_ref['text'] + '\n'))  # .encode().decode(encoding='windows-1251')
+                file.write(str(mess_ref['text'] + '\n'))
                 await callback.answer('ссылка добавлена')
 
 
@@ -127,7 +128,8 @@ async def del_l_ref(callbackid1):
             if st != mess_ref['text'] +'\n':
                 lr.append(st)
     except:
-        print('Поздно нажали "Закончить отслеживать"')
+        print('str 130 Поздно нажали "Закончить отслеживать"')
+        print(str(sys.exc_info()))
     with open(f'monitor_list_ref{callbackid1}.txt', 'w', encoding='utf-8', errors='ignore') as file:
 
         for i in lr:
