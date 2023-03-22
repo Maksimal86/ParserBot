@@ -13,8 +13,8 @@ dp=Dispatcher(bot)
 moni=1
 mess_id=''
 mess_ref=''
-time_monitor1='10:40'
-time_monitor2='18:00'
+time_monitor1='10:25'
+time_monitor2='19:30'
 @dp.message_handler(content_types=['text'])
 async def send_message(message):
     global mess_ref
@@ -70,26 +70,25 @@ async def auto_start():
                         list_files.append(filename) # собрали все файлы, связанные с отслеживанием
             for i in list_files:
                 with open(i, 'r', encoding='utf-8', errors='ignore') as file:
-                    schetchik+=1
                     mon_ref=file.readline() # получили True
                     message=file.readline()#получили строку message, записанную в файл
                     print('str76','message', message, type(message))
 
-                    if mon_ref == 'True\n' and message: # проверяем, что файл содержит True
-                        message = json.loads(message)  # переводим строку в словарь
-                        print("str79 message", message)
-                        for i in l_ref(message['from']['id']):  # передали список ссылок из файла monitor_list_ref()
-                            print(l_ref(message['from']['id']))
-                            print('str82', message['from']['id'])
-                            message['text'] = i[:-1]  # "общую" ссылку подменили  на одну из отслеживаемых ссылок
-                            print('str84 запуск sbor_ozon_sber()  из auto_start ')
-                            await sbor_ozon_sber(message)
-                            await asyncio.sleep(60)  # задержка между опросами по ссылкам # прошлись по ссылкам из одного файла
-                            print('str87 итерация for окончена')
-                        print('str88 for окончен')
-                        if schetchik == len(list_files):
-                            print("str90 счетчик ", schetchik, "большой перерыв")
-                            await asyncio.sleep(14400)
+                if mon_ref == 'True\n' and message: # проверяем, что файл содержит True
+                    schetchik += 1
+                    message = json.loads(message)  # переводим строку в словарь
+                    print("str79 message", message)
+                    for i in l_ref(message['from']['id']):  # передали список ссылок из файла monitor_list_ref()
+                        print(l_ref(message['from']['id']))
+                        print('str82', message['from']['id'])
+                        message['text'] = i[:-1]  # "общую" ссылку подменили  на одну из отслеживаемых ссылок
+                        print('str84 запуск sbor_ozon_sber()  из auto_start ')
+                        await sbor_ozon_sber(message)
+                        await asyncio.sleep(60)  # задержка между опросами по ссылкам # прошлись по ссылкам из одного файла
+                        print('str87 итерация for окончена')
+                    print('str88 for окончен')
+            print('Количество проверенных файлов=', schetchik, "большой перерыв")
+            await asyncio.sleep(14400)
 
 def l_ref(userid): # возвращаем список ссылок из файла
     with open (f'monitor_list_ref{userid}.txt','a+', encoding='utf-8', errors='ignore') as file:
