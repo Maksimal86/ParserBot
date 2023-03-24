@@ -13,7 +13,7 @@ dp=Dispatcher(bot)
 moni=1
 mess_id=''
 mess_ref=''
-time_monitor1='10:25'
+time_monitor1='10:20'
 time_monitor2='19:30'
 @dp.message_handler(content_types=['text'])
 async def send_message(message):
@@ -54,15 +54,16 @@ async def send_message(message):
         await monitor_data(message)
     elif message['text'] == 'старт':
         await auto_start()
+    elif message['text'] == 'кнопки':
+        await bot.send_message(message.from_user.id, 'Пожалуйста, кнопки...', reply_markup=but)
     else:
         await bot.send_message(message.chat.id, 'Неизвестная \n команда')
     mess_ref = message
 # Сделать так, чтобы запуск проходил 1 раз по всем файлам за 1 True из timer
 async def auto_start():
-    list_files=[] # список файлов со ссылками
     schetchik=0
-    monD=0
     while True:
+        list_files = []# список файлов со ссылками
         if await timer.timer(time_monitor1 + ':00') or await  timer.timer(time_monitor2 + ':00'):
             for root, dirs, files in os.walk("."):
                 for filename in files:
@@ -70,13 +71,16 @@ async def auto_start():
                         list_files.append(filename) # собрали все файлы, связанные с отслеживанием
             for i in list_files:
                 with open(i, 'r', encoding='utf-8', errors='ignore') as file:
-                    mon_ref=file.readline() # получили True
+                    mon_ref=file.readline() # получили True из monitor_ref
                     message=file.readline()#получили строку message, записанную в файл
-                    print('str76','message', message, type(message))
+                    #print('str76','message', message, type(message))
 
                 if mon_ref == 'True\n' and message: # проверяем, что файл содержит True
                     schetchik += 1
                     message = json.loads(message)  # переводим строку в словарь
+                    if l_ref(message['from']['id']) == []:# Файл с сылками пуст
+                        print('continue')
+                        continue
                     print("str79 message", message)
                     for i in l_ref(message['from']['id']):  # передали список ссылок из файла monitor_list_ref()
                         print(l_ref(message['from']['id']))
@@ -88,7 +92,7 @@ async def auto_start():
                         print('str87 итерация for окончена')
                     print('str88 for окончен')
             print('Количество проверенных файлов=', schetchik, "большой перерыв")
-            await asyncio.sleep(14400)
+            await asyncio.sleep(600)
 
 def l_ref(userid): # возвращаем список ссылок из файла
     with open (f'monitor_list_ref{userid}.txt','a+', encoding='utf-8', errors='ignore') as file:
