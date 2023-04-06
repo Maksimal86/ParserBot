@@ -12,6 +12,13 @@ def whattomine():
     coins = 5# количество монет для вывода с самой высокой доходностью
     try:
         for ur in url:
+            res_list_dict_coin=[]
+            if ur == url1080:
+                card = '1080'
+            elif ur == url5700:
+                card = '5700'
+            elif ur == url5600:
+                card = '5600'
             responce = requests.get(ur, headers=headers)
             if responce.status_code<300:
                 res=responce.text
@@ -34,18 +41,26 @@ def whattomine():
                             if i==8: # нашли нужную строку для парсинга
                                 incom=strong.find('strong').get_text() # доходность
                                 dict_coin_incom={coin_name.strip():incom.strip()}# монета + доходность словарь
-                                list_dict_coin_incom.append(str(ur)+ ' '+str(dict_coin_incom))# список монет с доходностью
-                                #print (str(list_dict_coin_incom))
+                                list_dict_coin_incom.append(str(dict_coin_incom))# список словарей монета + доходность для одной карты
+                        if len(list_dict_coin_incom) == 5:
+                            break
+                yield card + str(list_dict_coin_incom).translate({ord(i): " " for i in '{}[]'})
+                #res_list_dict_coin.append(str(list_dict_coin_incom))# список доходностей монет каждой карты
 
-                quantity=0
-                list_coin_incom=[]
-                for coin in list_dict_coin_incom:
-                    quantity+=1
-                    list_coin_incom.append(coin)
-                    print(coin)
-                    yield coin
-                    if quantity == coins:
-                        break
+
+
+
+
+
+           #''' quantity=0
+           # list_coin_incom=[]
+           # for coin in res_list_dict_coin:
+           #     quantity+=1
+           #     list_coin_incom.append(coin)
+           #     print(coin)
+           #     #yield coin
+           #     if quantity == coins:
+           #         break'''
     except:
         print(sys.exc_info())
         return 'error'#, sys.exc_info()

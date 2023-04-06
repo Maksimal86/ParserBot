@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 import sys
 import asyncio
-
 import time
 import mytoken
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import WtoM,hashrateno2, mineros, Hive
-import binance, armtek
-
-sys.path.insert(1, 'C:/ProjectParser/ParserBot/Shop')
-import timer
+import WtoM,hashrateno2, mineros, Hive, binance, armtek,timer
 
 righive=4
 rigmineros=2
@@ -66,7 +61,7 @@ async def send_message(message):
         else:
             #bot.send_message(message.from_user.id, str(WtoM.whattomine()))
             for i in WtoM.whattomine():
-                await bot.send_message(message.from_user.id, str(i[1:-2]))
+                await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
         armtek_list = armtek.armtek()[:]
         if armtek_list == []:

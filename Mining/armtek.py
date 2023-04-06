@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-import time, datetime, captcha
+import time, datetime
 from datetime import date
 from selenium import webdriver
 from selenium.webdriver import ActionChains
@@ -83,9 +83,6 @@ def armtek():
         with open('sess.txt') as sess:
             kuk=json.load(sess) # забираем куки из файла
             print(kuk)
-        # Из всего списка имеющихся кук берем только то, что надо в соответствущем формате для selenium
-        # код корректный - куки работают, не используется, потому что проще через ввод логина и пароля
-
         k=driver.get_cookies()
         print(k)
         for i in range(len(kuk)):
