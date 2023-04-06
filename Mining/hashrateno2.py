@@ -80,14 +80,13 @@ def hasrateno():
         sum_max_profit+=max_profit
         for key, value in sort_dict.items():
             result_coin+=1
-            sort_list.append(key+':'+str(round(float(value[1:])*quantity_cards,1))+'$')
+            sort_list.append(key+':'+str(round(float(value[1:])*quantity_cards,2))+'$')
             if result_coin == quantity_res:
                 break
-        sort_list[0]=card+'  '
         sort_list.append('Max profit='+str(round(max_profit,1))+'$')
         if quant == len(cards):
             sort_list.append('Суммарный максимальный профит='+str(sum_max_profit)+'$')
-        big_list.append(sort_list)
+        big_list.append(card+' '+str(sort_list))
         for i in big_list:
             print (str(i).translate({ord(i):None for i in "[]'"}))
     return big_list
