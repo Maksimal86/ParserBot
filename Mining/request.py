@@ -7,13 +7,14 @@ import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
 import WtoM,hashrateno2, mineros, Hive, binance, armtek,timer
-
+#from states import FSMContext, StateGroupExample
 righive=4
-rigmineros=2
-
+#rigmineros=2
+#
 logger = logging.getLogger(__name__)
 bot=Bot(mytoken.tokenbot)
 dp=Dispatcher(bot)
+
 monitor=0
 @dp.message_handler(content_types=['text'])
 async def send_message(message):

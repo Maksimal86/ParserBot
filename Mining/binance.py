@@ -24,8 +24,9 @@ def bin():
         for page in [1,2,3]:
             url=f'https://www.binance.com/en/markets/overview?p={page}'
             print(url)
-            driver.get(url)
 
+            driver.get(url)
+            time.sleep(1)
             res = driver.page_source# получили всё страницу в html
 
             with open('index.html', 'w', encoding="utf-8", errors='ignore') as file:
@@ -39,11 +40,11 @@ def bin():
             for i in soup.findAll('div', class_='css-vlibs4'):
                 global delta_coin
                 coin=i.find('div', class_='css-1x8dg53').get_text()
-                price_coin=i.find('div',class_='css-leyy1t').find('div', class_='css-ydcgk2').find('div').get_text()
-                delta_coin=i.find('div',class_='css-leyy1t').find('div', class_='css-18yakpx').find('div').get_text()
+                price_coin=i.find('div', class_='css-ydcgk2').find('div').get_text()
+                delta_coin=i.find('div', class_='css-18yakpx').find('div').get_text()
                 if coin in find_coin:
                     coins.append(coin +' '+ price_coin +' '+ delta_coin)
-                    #print(coin +' '+ price_coin +' '+ delta_coin)
+                    print(coin +' '+ price_coin +' '+ delta_coin)
 
                     yield coin, price_coin, delta_coin
 
