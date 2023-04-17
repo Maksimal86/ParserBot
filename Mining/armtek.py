@@ -17,7 +17,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
+    #options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -59,11 +59,11 @@ def armtek_coockie():
         json.dump(kuki,file)
     time.sleep(10)
     if timenow > time11obj and timenow < time24obj:
-        print('run11---00')
+        return data11_24(driver)
     elif timenow > time00obj and timenow < time05obj:
-        print('run00---05')
-    elif timenow > time05obj and timenow < time11obj:  # 16:22:00>05:00:00    16:22:00<11:00:00 раньше  - это меньше
-        print("run05---11")
+        return data0_5(driver)
+    elif timenow > time05obj and timenow < time11obj:
+        return data5_11(driver)
     else:
         print('str 142 где-то ошибка по времени')
 
@@ -139,7 +139,7 @@ def data_post(driver): # получаем список поставок
                 date_p=driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[4]/div/div').text
             except:
                 continue
-            if date.today().strftime("%d.%m.%Y") == date_p: # сегодняшняя дата = дате поставки
+            if date.today().strftime("%d.%m.%Y") == date_p or (date.today()- datetime.timedelta(days=1)).strftime("%d.%m.%Y") == date_p: # сегодняшняя дата = дате поставки
                 try:
                     data_f=driver.find_element((By.XPATH,f'//*[@id="DataTables_Table_1"]/tbody/tr[i]/td[5]/div')).text
                 except: # а фактуры нет
