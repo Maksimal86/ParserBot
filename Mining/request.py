@@ -7,18 +7,18 @@ import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
 import WtoM,hashrateno2, mineros, Hive, binance, armtek,timer
-#from states import FSMContext, StateGroupExample
+from aiogram.dispatcher import FSMContext, filters
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 righive=4
 #rigmineros=2
-#
+storage = MemoryStorage() #создали хранилище памяти
 logger = logging.getLogger(__name__)
 bot=Bot(mytoken.tokenbot)
-dp=Dispatcher(bot)
+dp=Dispatcher(bot,storage=storage)#  передали экзепляру класса диспетчера бота и хранилище
 
-monitor=0
-@dp.message_handler(content_types=['text'])
-async def send_message(message):
-
+@dp.message_handler(content_types=['text'] )
+async def send_message(message, state):
 
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('хешрейт')
@@ -38,7 +38,7 @@ async def send_message(message):
         print('старт')
         global monitor
         monitor = 1
-        await asyncio.gather(armtek_momitor(message),monitor_hashrate(message),delta_price(message))  # одновременный запуск асинхронных функций
+        await asyncio.gather(armtek_momitor(message),monitor_hashrate(message, state),delta_price(message))  # одновременный запуск асинхронных функций
 
     elif message.text.lower() == 'стоп':# остановка Wdog
         monitor = 0
@@ -65,13 +65,14 @@ async def send_message(message):
     elif message.text == 'binance':
         for i in binance.bin():
             await bot.send_message(message.from_user.id, i)
-    else:
-        await bot.send_message(message.chat.id, 'Неизвестная команда')
+  #  else:
+  #      await bot.send_message(message.chat.id, 'Неизвестная команда')
+
 
 # Наблюдение за количеcтвом ригов онлайн
-async def monitor_hashrate(message):
+async def monitor_hashrate(message, state):
     while monitor:
-        #mineros.hashrate()
+        await check_hive_work(message, state)
         print('monitor hashrate run', monitor)
         if Hive.save_onlinehive() < righive:
             await asyncio.sleep(0.3)
@@ -128,6 +129,32 @@ async def armtek_momitor(message):
             await asyncio.sleep(600)
         else:
             print("armtek_monitor() False")
+class Google_kod(StatesGroup): # создали класс для хранения состояний
+    waiting_kod = State() # создали экземпляр класса состояния ожидания кода
+
+
+async def need_send_kod(message: types.Message, state: FSMContext):
+    print('run kod') # запускается, не смотря на фильтры, потому что функция запускается отдельным вызовом, минуя фильтры.
+    await message.answer('Нужен код')
+    await Google_kod.waiting_kod.set() # установливаем  в состояние wating kod
+
+@dp.message_handler(content_types=['text'],state=Google_kod.waiting_kod)# если убрать state=Google_kod.waiting_kod, то get_cod() не обработает state
+async def get_kod(message: types.Message, state: FSMContext):
+    print('run get_kod()')
+    await state.update_data(G_kod=message.text)
+    user_data = await state.get_data('G_kod')# получаем сохраненные данные из хранилища
+    #if len(user_data['waiting_kod']) == 6:
+    print('user_data', user_data)
+    async with state.proxy() as data: # получаем доступ к state как к словарю
+        Hive.hive_get_kod(data['G_kod'])  #Hive.hive_get_kod(user_data['waiting_kod'])
+    await state.finish()
+async def check_hive_work(message, state: FSMContext):
+    print('run check_hive_work()')
+    with open('hive_work.txt', 'r') as file:
+       read= file.read()
+    if read == 'False':
+        await need_send_kod(message, state)
+
 
 try:
     executor.start_polling(dp)#(timeout=5, long_polling_timeout = 5)#(none_stop=True, interval=0)

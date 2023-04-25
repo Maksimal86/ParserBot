@@ -17,7 +17,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    #options.add_argument("--headless")  # скрытый запуск браузера
+    options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -71,6 +71,8 @@ def armtek_coockie():
 # либо берет из файла, дополняя своими данными, возвращает.
 def data5_11(driver): # сбор данных с 5-00 до 11-00
     print('run data5_11 ')
+    with open("armtek.txt",'w') as file: # очистили файл с поставками
+        file.write('')
     driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
     driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
                                                                   (date.today() - datetime.timedelta(days=20)).strftime(
@@ -132,19 +134,21 @@ def data_post(driver): # получаем список поставок
     list_z=[]
 
     try:
-        for i in range(1,10):
+        for i in range(1,15):
             s=driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[12]/div').text # сумма поставки
             kom=driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[15]/span').text # комментарий
             try:
                 date_p=driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[4]/div/div').text
             except:
                 continue
-            if date.today().strftime("%d.%m.%Y") == date_p or (date.today()- datetime.timedelta(days=1)).strftime("%d.%m.%Y") == date_p: # сегодняшняя дата = дате поставки
+            if date.today().strftime("%d.%m.%Y") == date_p or (date.today()- datetime.timedelta(days=1)).strftime("%d.%m.%Y") == date_p \
+                    and driver.find_element(By.XPATH, '//*[@id="DataTables_Table_0"]/tbody/tr[2]/td[5]/div').text == None: # сегодняшняя дата = дате поставки, а фактуры нет-
                 try:
-                    data_f=driver.find_element((By.XPATH,f'//*[@id="DataTables_Table_1"]/tbody/tr[i]/td[5]/div')).text
+                    driver.find_element((By.XPATH,f'//*[@id="DataTables_Table_1"]/tbody/tr[i]/td[5]/div')).text
                 except: # а фактуры нет
                     list_z.append('Сумма: ' + s + 'руб, комментарий: ' + kom)
                 print(s,'\n',kom)
+        print((list_z))
         return list_z
     except:
         print(sys.exc_info())

@@ -3,7 +3,7 @@ import datetime
 import sys
 import requests
 import time
-import mytoken, HeshMh
+import mytoken, units_of_measurement
 
 period=180# время между опросами сервера
 wdog1070=200 # минимальный хешрейт

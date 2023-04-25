@@ -44,7 +44,7 @@ def bin():
                 delta_coin=i.find('div', class_='css-18yakpx').find('div').get_text()
                 if coin in find_coin:
                     coins.append(coin +' '+ price_coin +' '+ delta_coin)
-                    print(coin +' '+ price_coin +' '+ delta_coin)
+                    #print(coin +' '+ price_coin +' '+ delta_coin)
 
                     yield coin, price_coin, delta_coin
 
