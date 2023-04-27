@@ -48,6 +48,8 @@ def hashrate_no_get_coin_price():
         price_coin=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[1]/td').text
         delta_price_day=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[4]/td[2]').text
         print(coin_name, price_coin, delta_price_day)
+        yield coin_name, price_coin, float(delta_price_day[:-1])
+
 
 
 hashrate_no_get_coin_price()
