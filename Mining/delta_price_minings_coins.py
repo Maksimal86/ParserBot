@@ -2,7 +2,7 @@
 import requests, json
 from bs4 import BeautifulSoup
 import lxml
-import time, datetime
+import time, datetime, sys
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -39,17 +39,21 @@ def hashrate_no_get_coin_price():
     options = options_add()
     driver = webdriver.Chrome(service=s, options=options)
     driver.get(url)
+    try:
+        for i in range(1,50):
+            try:
+                coin_name=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[1]/div/span').text
+            except NoSuchElementException:
+                continue
+            price_coin=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[1]/td').text
+            delta_price_day=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[4]/td[2]').text
+            print(coin_name, price_coin, delta_price_day)
+            yield coin_name, price_coin, float(delta_price_day[:-1])
+    except:
+        print( sys.exc_info())
+    finally:
+        driver.close()
+        driver.quit()
 
-    for i in range(1,50):
-        try:
-            coin_name=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[1]/div/span').text
-        except NoSuchElementException:
-            continue
-        price_coin=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[1]/td').text
-        delta_price_day=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[4]/td[2]').text
-        print(coin_name, price_coin, delta_price_day)
-        yield coin_name, price_coin, float(delta_price_day[:-1])
-
-
-
-hashrate_no_get_coin_price()
+if __name__ == '__main__':
+    hashrate_no_get_coin_price()

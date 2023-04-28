@@ -6,7 +6,7 @@ import mytoken
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import WtoM,hashrateno2, mineros, Hive, binance, armtek,timer
+import WtoM,hashrateno2, mineros, Hive, binance, armtek, delta_price_minings_coins, timer
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -92,8 +92,12 @@ async def delta_price(message):
             for i in binance.bin():
                 print(i,(i[2][:-1]), float(i[2][:-1]))
                 if float(i[2][:-1])>5 or float(i[2][:-1])<-5:
-
                     await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
+            gen=delta_price_minings_coins.hashrate_no_get_coin_price()
+            for i in gen :
+                print(i)
+                if i[2]>15 or i[2]<-15:
+                    await bot.send_message(message.from_user.id, text="Изменение больше 15% "+str(i).translate({ord(i): None for i in '()'})+'%')
             await asyncio.sleep(3600)
     except:
         with open("log.txt", 'a') as log:

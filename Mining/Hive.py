@@ -19,7 +19,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
+    #options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -44,10 +44,10 @@ def hive_hashrate():
             cookies_from_file= json.load(file)
         necessary_cookies={}
         for cookie in cookies_from_file:
-            d={cookie["name"]:cookie["value"]}
-            necessary_cookies.update(d)
+            dict_cookies={cookie["name"]:cookie["value"]}
+            necessary_cookies.update(dict_cookies)
         responce =requests.get(url, headers=headers, cookies=necessary_cookies)
-
+        print('json',responce.json())
         json_hashrate=responce.json()['hashrates_by_coin']
         hashrate=[]
         j=0
