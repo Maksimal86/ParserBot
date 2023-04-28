@@ -31,7 +31,7 @@ def options_add():
     return options
 hashr=[]
 hashlist = []
-onlinehive=None
+json_rig_online=0
 
 def hive_hashrate():
     headers = mytoken.headers_hive
@@ -51,7 +51,7 @@ def hive_hashrate():
         json_hashrate=responce.json()['hashrates_by_coin']
         hashrate=[]
         j=0
-        global onlinehive
+        global json_rig_online
         json_rig_online =responce.json()['stats']['workers_online']
         for i in json_hashrate:
             rig_hashrate = json_hashrate[j]['hashrate']*1000
@@ -104,8 +104,8 @@ def hive_get_kod(kod):
     print('kod',kod)
 def save_onlinehive():
     hive_hashrate()
-    print(onlinehive)
-    return onlinehive
+    print(json_rig_online)
+    return json_rig_online
 if __name__=='__main__':
     hive_hashrate()
 
