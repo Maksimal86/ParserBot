@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-import requests, json
-from bs4 import BeautifulSoup
-import lxml
-import time, datetime, sys
+import sys
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -47,8 +44,9 @@ def hashrate_no_get_coin_price():
                 continue
             price_coin=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[1]/td').text
             delta_price_day=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[4]/td[2]').text
+            delta_price_week=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[5]/td[2]').text
             print(coin_name, price_coin, delta_price_day)
-            yield coin_name, price_coin, float(delta_price_day[:-1])
+            yield coin_name, price_coin,( 'за неделю '+str(delta_price_week)),float(delta_price_day[:-1])# ('за неделю '+ str(delta_price_week)), ('за 24 часа '+ str(float(delta_price_day[:-1])))
     except:
         print( sys.exc_info())
     finally:

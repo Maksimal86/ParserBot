@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime, time
 import sys, json, os
 import requests
 import mytoken, units_of_measurement
@@ -10,7 +9,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import json
-import mytoken
+
 def options_add():
 
     options = webdriver.ChromeOptions()

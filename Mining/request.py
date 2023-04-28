@@ -74,7 +74,8 @@ async def monitor_hashrate(message, state):
     while monitor:
         await check_hive_work(message, state)
         print('monitor hashrate run', monitor)
-        if Hive.save_onlinehive() < righive:
+        quantity_rigs_online = Hive.save_onlinehive()
+        if quantity_rigs_online < righive:
             await asyncio.sleep(0.3)
             await bot.send_message(message.from_user.id, text='Hive rig offline, online rigs = ' + str(
                 Hive.save_onlinehive()))
@@ -82,7 +83,7 @@ async def monitor_hashrate(message, state):
             mineros.period=30
             with open('log.txt', 'a') as log:
                 log.write('Hive' + str(datetime.datetime.now()) + 'rig offline' + str(Hive.save_onlinehive()) + '\n')
-        if Hive.save_onlinehive() < righive: mineros.period=180
+        if quantity_rigs_online < righive: mineros.period=180
         await asyncio.sleep(mineros.period)
 
 async def delta_price(message):
@@ -96,8 +97,8 @@ async def delta_price(message):
             gen=delta_price_minings_coins.hashrate_no_get_coin_price()
             for i in gen :
                 print(i)
-                if i[2]>15 or i[2]<-15:
-                    await bot.send_message(message.from_user.id, text="Изменение больше 15% "+str(i).translate({ord(i): None for i in '()'})+'%')
+                if i[3]>15 or i[3]<-15:
+                    await bot.send_message(message.from_user.id, text="Изменение больше 15% "+str(i).translate({ord(i): None for i in '()'})+'% за 24 часа')
             await asyncio.sleep(3600)
     except:
         with open("log.txt", 'a') as log:
@@ -169,12 +170,3 @@ except:
     executor.start_polling(dp, skip_updates=True)#(timeout=5, long_polling_timeout=5)
 
 
-'''как определяется риг для выполнения команды?
-ошибка replace'''
-
-
-'''
-ловить исключения
-
-токена авторизации на mineros
-'''
