@@ -77,7 +77,7 @@ def data5_11(driver): # сбор данных с 5-00 до 11-00
     driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
                                                                   (date.today() - datetime.timedelta(days=20)).strftime(
                                                                       "%d.%m.%Y"), Keys.ENTER)
-    time.sleep(5)
+    time.sleep(10)
     list_z=[]
 
     try:
