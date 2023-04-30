@@ -2,7 +2,7 @@
 import sys
 import asyncio
 import time
-import mytoken
+import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
@@ -39,7 +39,6 @@ async def send_message(message, state):
         global monitor
         monitor = 1
         await asyncio.gather(armtek_momitor(message),monitor_hashrate(message, state),delta_price(message))  # одновременный запуск асинхронных функций
-
     elif message.text.lower() == 'стоп':# остановка Wdog
         monitor = 0
         print(monitor)
@@ -83,7 +82,7 @@ async def monitor_hashrate(message, state):
             mineros.period=30
             with open('log.txt', 'a') as log:
                 log.write('Hive' + str(datetime.datetime.now()) + 'rig offline' + str(Hive.save_onlinehive()) + '\n')
-        if quantity_rigs_online < righive: mineros.period=180
+        if quantity_rigs_online == righive: mineros.period=180
         await asyncio.sleep(mineros.period)
 
 async def delta_price(message):
@@ -99,6 +98,11 @@ async def delta_price(message):
                 print(i)
                 if i[3]>15 or i[3]<-15:
                     await bot.send_message(message.from_user.id, text="Изменение больше 15% "+str(i).translate({ord(i): None for i in '()'})+'% за 24 часа')
+
+            u_r_get_cource = USD_RUB.get_course()
+            print(u_r_get_cource)
+            if float(u_r_get_cource[1][:-1]) > 5 or float(u_r_get_cource[1][:-1]) < -5:
+                await bot.send_message(message.from_user.id, text="Изменение больше 5% USD/RUB" + str(u_r_get_cource))
             await asyncio.sleep(3600)
     except:
         with open("log.txt", 'a') as log:
