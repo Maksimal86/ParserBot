@@ -26,7 +26,7 @@ async def send_message(message, state):
     btn3 = types.KeyboardButton('Стоп')
     btn4 = types.KeyboardButton('профит')
     btn5 = types.KeyboardButton('Армтек')
-    btn6 = types.KeyboardButton('binance')
+    btn6 = types.KeyboardButton('курсы валют')
     but.add(btn1, btn2, btn3, btn4, btn5, btn6)
     print(message.text.lower(), message)
     if message.text.lower() == 'хешрейт':
@@ -61,9 +61,13 @@ async def send_message(message, state):
         else:
             for i in armtek_list:
                 await bot.send_message(message.from_user.id, i)
-    elif message.text == 'binance':
+    elif message.text.lower() == 'курсы валют':
         for i in binance.bin():
             await bot.send_message(message.from_user.id, i)
+        for i in delta_price_minings_coins.hashrate_no_get_coin_price():
+            await  bot.send_message(message.from_user.id, text=i)
+        await bot.send_message(message.from_user.id, text=USD_RUB.get_course())
+
   #  else:
   #      await bot.send_message(message.chat.id, 'Неизвестная команда')
 
