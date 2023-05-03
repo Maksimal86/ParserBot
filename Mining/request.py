@@ -64,12 +64,9 @@ async def send_message(message, state):
     elif message.text.lower() == 'курсы валют':
         for i in binance.bin():
             await bot.send_message(message.from_user.id, i)
-        for i in delta_price_minings_coins.hashrate_no_get_coin_price():
+        for i in delta_price_minings_coins.getting_coin_attrbutes():
             await  bot.send_message(message.from_user.id, text=i)
         await bot.send_message(message.from_user.id, text=USD_RUB.get_course())
-
-  #  else:
-  #      await bot.send_message(message.chat.id, 'Неизвестная команда')
 
 
 # Наблюдение за количеcтвом ригов онлайн

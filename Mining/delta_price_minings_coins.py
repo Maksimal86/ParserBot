@@ -1,57 +1,26 @@
 # -*- coding: utf-8 -*-
-import sys
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-error = 1  # флаг ответа сайта ???? проверить
-def options_add():
-    options = webdriver.ChromeOptions()
-    # options = undetected_chromedriver.ChromeOptions()
-    # options.page_load_strategy = 'eager'#WebDriver ожидает, пока не будет возвращен запуск события DOMContentLoaded.
-    # options.add_argument("set_window_size(0, 0)")
-    options.add_experimental_option("excludeSwitches", ['enable-automation'])
-    options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
-    options.add_argument('--no-sandobox')  # режим песочницы
-    options.add_argument('--disable-gpu')  # во избежание ошибок
-    options.add_argument('--disable-dev-shm-usage')  # для увеличеня памяти для хрома
-    # options.add_argument('--disable-brouser-side-navigation')  # прекращение загрузки дополниетльных подресурсов при дляительной загрузки страницы
-    options.add_argument('--lang=en')
-    options.add_experimental_option('useAutomationExtension',
-                                    False)  # опция отключает драйвер для установки других расширений Chrome, таких как CaptureScreenshot
-    # options.add_argument(
-    #   '--start-maximized')  # Запускает браузер в развернутом виде, независимо от любых предыдущих настроек.
-    options.add_argument(
-        'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 YaBrowser/22.11.5.715 Yowser/2.5 Safari/537.36')  # меняем заголовок запроса
-    prefs = {"profile.managed_default_content_settings.images": 2}  # не загружаем картинки
-    # options.add_experimental_option('prefs', prefs)  # не загружаем картинки
-    return options
-
+import sys, requests, lxml
+from bs4 import BeautifulSoup
 
 def hashrate_no_get_coin_price():
+    return getting_coin_attrbutes()
+def soup():
     url='https://www.hashrate.no/coins'
-    s = Service(executable_path=r'C:\yandexdriver.exe')  # расположение драйвера
-    options = options_add()
-    driver = webdriver.Chrome(service=s, options=options)
-    driver.get(url)
-    try:
-        for i in range(1,50):
-            try:
-                coin_name=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[1]/div/span').text
-            except NoSuchElementException:
-                continue
-            price_coin=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[1]/td').text
-            delta_price_day=driver.find_element(By.XPATH, f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[4]/td[2]').text
-            delta_price_week=driver.find_element(By.XPATH,f'/html/body/div/div[2]/div[2]/div[3]/div[2]/div[{i}]/a/div/div[2]/div/table/tbody/tr[5]/td[2]').text
-            print(coin_name, price_coin, delta_price_day)
-            yield coin_name, price_coin,( 'за неделю '+str(delta_price_week)),float(delta_price_day[:-1])# ('за неделю '+ str(delta_price_week)), ('за 24 часа '+ str(float(delta_price_day[:-1])))
-    except:
-        print( sys.exc_info())
-    finally:
-        driver.close()
-        driver.quit()
+    responce = requests.get(url)
+    soup = BeautifulSoup(responce.text, 'lxml')
+    return soup
+def getting_main_tag():
+    list_main_teg = soup().findAll('div', class_='block deviceLink')
+    return list_main_teg
+def getting_coin_attrbutes():
+    for i in getting_main_tag():
+        coin_name=i.find('span',class_="deviceHeader").text
+        coin_price=i.findAll('table')[1].find('td', class_ = 'coinsData').text
+        coins_delta_price_hour =i.findAll('table')[1].findAll('td',class_='coinsInfo')[2].text
+        coins_delta_price_day = i.findAll('table')[1].findAll('td', class_='coinsInfo')[4].text
+        print(coin_name, coin_price, coins_delta_price_hour,coins_delta_price_day)
+        yield coin_name, coin_price, coins_delta_price_hour+' за 1 час ',float(coins_delta_price_day[:-1])
+
 
 if __name__ == '__main__':
     hashrate_no_get_coin_price()
