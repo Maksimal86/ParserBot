@@ -30,7 +30,7 @@ def options_add():
 
 def hasrateno():
     s = Service(executable_path=r'C:\yandexdriver.exe')  # расположение драйвера
-    s=Service(executable_path=r'C:\chromedriver.exe')
+    #s=Service(executable_path=r'C:\chromedriver.exe')
     options = options_add()
     driver = webdriver.Chrome(service=s, options=options)
     cards = ['1080','5600XT','5700']  # список нужных карт
