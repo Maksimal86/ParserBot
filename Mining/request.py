@@ -6,11 +6,11 @@ import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import WtoM,hashrateno2, mineros, Hive, binance, armtek, delta_price_minings_coins, timer
+import WtoM,hashrateno, mineros, Hive, binance, armtek, delta_price_minings_coins, timer
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-righive=4
+righive=3
 #rigmineros=2
 storage = MemoryStorage() #создали хранилище памяти
 logger = logging.getLogger(__name__)
@@ -43,16 +43,10 @@ async def send_message(message, state):
         monitor = 0
         print(monitor)
     elif message.text.lower() == 'профит': # Парсинг hashrate.no и what to mine с выводом соответствующих данных о доходности
-        if hashrateno2.error == 0:
-            print(hashrateno2.error)
-            await bot.send_message(message.from_user.id, 'Нет соединения с сайтом')
-        elif type(WtoM.whattomine()) ==  str:
-            await bot.send_message(message.from_user.id, 'Нет соединения с сайтом')
-        else:
-            for j in hashrateno2.hasrateno():
-                await bot.send_message(message.from_user.id, str(j).translate({ord(i):None for i in "[]'" }))
-            for i in WtoM.whattomine():
-                await bot.send_message(message.from_user.id, i)
+        for j in hashrateno.main_function():
+            await bot.send_message(message.from_user.id, str(j).translate({ord(i):None for i in "[]'" }))
+        for i in WtoM.whattomine():
+            await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
         armtek_list = armtek.armtek()[:]
         print('armtek_list', armtek_list)
