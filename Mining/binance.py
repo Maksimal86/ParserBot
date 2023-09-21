@@ -1,63 +1,67 @@
 # -*- coding: utf-8 -*-
-
-import sys
-import time, datetime
-from bs4 import BeautifulSoup
-from selenium.webdriver import Keys, ActionChains
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.actions.mouse_button import MouseButton
 
-def bin():
-    s = Service(executable_path=r'C:\yandexdriver.exe')# расположение драйвера
+
+def set_options_of_selenium():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless") # скрытый запуск браузера
-    options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 YaBrowser/22.11.5.715 Yowser/2.5 Safari/537.36') # меняем заголовок запроса
-    prefs = {"profile.managed_default_content_settings.images": 2}#не загружаем картинки
-    options.add_experimental_option('prefs', prefs) #не загружаем картинки
-    driver = webdriver.Chrome(service=s,options=options)
-    #driver.implicitly_wait(0.5) # ожидание загрузки
-    coins = []
-    try:
-        for page in [1,2,3]:
-            url=f'https://www.binance.com/en/markets/overview?p={page}'
-            print(url)
+    options.add_argument("--headless")
+    options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                         'Chrome/106.0.0.0 YaBrowser/22.11.5.715 Yowser/2.5 Safari/537.36')
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option('prefs', prefs)
+    return options
 
-            driver.get(url)
-            time.sleep(1)
-            res = driver.page_source# получили всё страницу в html
 
-            with open('index.html', 'w', encoding="utf-8", errors='ignore') as file:
-                file.write(res)
-            with open('index.html', 'r', encoding="utf-8", errors='ignore') as file:
-                res=file.read()
+def get_service_selenium():
+    return Service(executable_path=r'C:\yandexdriver.exe')
 
-            find_coin=['BTC', 'ETH','XRP','ETC','FIL','SKL','ETHW','USDT']
-            soup = BeautifulSoup(res, 'lxml')
 
-            for i in soup.findAll('div', class_='css-vlibs4'):
-                global delta_coin
-                coin=i.find('div', class_='css-1x8dg53').get_text()
-                price_coin=i.find('div', class_='css-ydcgk2').find('div').get_text()
-                delta_coin=i.find('div', class_='css-18yakpx').find('div').get_text()
-                if coin in find_coin:
-                    coins.append(coin +' '+ price_coin +' '+ delta_coin)
-                    #print(coin +' '+ price_coin +' '+ delta_coin)
+def get_driver_selenium():
+    options = set_options_of_selenium()
+    service = get_service_selenium()
+    return webdriver.Chrome(service=service, options=options)
 
-                    yield coin, price_coin, delta_coin
 
-    except:
-        with open('log.txt', 'a', encoding='utf-8') as log:
-            log.write('binance '+str(datetime.datetime.now()) + ' нет соединения '+ str( sys.exc_info())+'\n')
-    finally:
-        print('finaly binance')
-        driver.close()
-        driver.quit()
+def get_url(page):
+    return f'https://www.binance.com/en/markets/overview?p={page}'
+
+
+def get_coin(driver,i):
+    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/a/div/div/div[2]/div').text
+
+
+def get_price_of_coin(driver, i):
+    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[1]/div').text
+
+
+def get_delta_of_coin_price(driver, i):
+    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[2]/div').text
+
+
+def get_cource_from_binance():
+    driver = get_driver_selenium()
+    data_of_coin = []
+    for page in [1,2,3]:
+        driver.get(get_url(page))
+        time.sleep(1)
+        find_coin=['BTC', 'ETH','XRP','ETC','FIL','SKL','ETHW','USDT']
+        for i in range(1,16):
+            coin = get_coin(driver,i)
+            price_of_coin = get_price_of_coin(driver,i)
+            delta_of_coin_price = get_delta_of_coin_price(driver, i)
+            if coin in find_coin:
+                data_of_coin.append(coin + ' ' + price_of_coin + ' ' + delta_of_coin_price)
+                print(coin + ' ' + price_of_coin + ' ' + delta_of_coin_price)
+                yield coin, price_of_coin, delta_of_coin_price
+    driver.close()
+    driver.quit()
+
 
 def delta():
-    bin()
-    yield (int(delta_coin))
+    get_cource_from_binance()
+
 if __name__ == '__main__':
-    bin()
+    get_cource_from_binance()
