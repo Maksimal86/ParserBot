@@ -47,6 +47,7 @@ class Browser():
                                           'div[3]/div[2]/div/input[2]').click()
 
 
+
     def get_main_teg(self):
         main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[4]')
         return main_teg
@@ -79,6 +80,8 @@ class Browser():
     def converting_to_string_format(self, card):
         result = card + ' ' + str(self.get_sorting_dict())
         return result
+
+
 def main_function():
     cards = ['1080', '5600XT', '5700']
     data_of_coins = Browser()
