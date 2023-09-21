@@ -56,11 +56,11 @@ async def send_message(message, state):
             for i in armtek_list:
                 await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'курсы валют':
-        for i in binance.bin():
+        for i in binance.get_cource_from_binance():
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
             await  bot.send_message(message.from_user.id, text=i)
-        await bot.send_message(message.from_user.id, text=USD_RUB.get_course())
+        await bot.send_message(message.from_user.id, text=USD_RUB.get_cource_usd_rub())
 
 
 async def monitoring_number_of_rigs(message, state):
@@ -86,7 +86,7 @@ async def monitoring_price_changes(message):
     try:
         while course_change_observer:
             print('binance run', course_change_observer)
-            for i in binance.bin():
+            for i in binance.get_cource_from_binance():
                 print(i,(i[2][:-1]), float(i[2][:-1]))
                 if float(i[2][:-1])>5 or float(i[2][:-1])<-5:
                     await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
@@ -96,7 +96,7 @@ async def monitoring_price_changes(message):
                 if i[3]>15 or i[3]<-15:
                     await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
                                            translate({ord(i): None for i in '()'})+'% за 24 часа')
-            u_r_get_cource = USD_RUB.get_course()
+            u_r_get_cource = USD_RUB.get_cource_usd_rub()
             print(u_r_get_cource)
             if float(u_r_get_cource[1][:-1]) > 2 or float(u_r_get_cource[1][:-1]) < -2:
                 await bot.send_message(message.from_user.id, text="Изменение больше 2% USD/RUB" + str(u_r_get_cource))
