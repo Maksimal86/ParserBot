@@ -253,6 +253,7 @@ def check_for_rejected_positions(driver, i):
 
 
 def get_information_about_refusals(driver):
+    print('get_information_about_refusals')
     for i in range(1,10):
         if check_for_rejected_positions(driver, i) and  check_date_of_order(driver, i):
             message = 'Отказ' + get_komment(driver, i)
@@ -290,6 +291,7 @@ def get_data_from_5_to_11(driver):
                         except NoSuchElementException:
                             break
             check_and_add_no_delivery(list_of_delivery)
+            list_of_delivery.append(get_information_about_refusals(driver))
             print(list_of_delivery)
             return list_of_delivery
         except IndexError:

@@ -60,7 +60,7 @@ async def send_message(message, state):
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
             await  bot.send_message(message.from_user.id, text=i)
-        await bot.send_message(message.from_user.id, text=USD_RUB.get_cource_usd_rub())
+        await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
 async def monitoring_number_of_rigs(message, state):
@@ -96,10 +96,10 @@ async def monitoring_price_changes(message):
                 if i[3]>15 or i[3]<-15:
                     await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
                                            translate({ord(i): None for i in '()'})+'% за 24 часа')
-            u_r_get_cource = USD_RUB.get_cource_usd_rub()
-            print(u_r_get_cource)
-            if float(u_r_get_cource[1][:-1]) > 2 or float(u_r_get_cource[1][:-1]) < -2:
-                await bot.send_message(message.from_user.id, text="Изменение больше 2% USD/RUB" + str(u_r_get_cource))
+            cource_rub_usd = USD_RUB.main()
+            print(cource_rub_usd)
+            if float(cource_rub_usd[1][:-1]) > 2 or float(cource_rub_usd[1][:-1]) < -2:
+                await bot.send_message(message.from_user.id, text="Изменение больше 2% USD/RUB" + str(cource_rub_usd))
             await asyncio.sleep(3600*3)
     except:
         with open("log.txt", 'a') as log:
