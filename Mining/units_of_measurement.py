@@ -1,31 +1,15 @@
 
-def hashrate_coin(hshr, coin):
-    hrstr=[]
-    hashr=[]
-    #global hashr
-     #hashlist
-    if  hshr < 1000:
-        #hr =  (round(hshr), 2)
-        hrstr = (coin + " " + str(round(hshr, 2)) + 'H(Sol)')
-        hashr.append(hrstr)
-        #hashlist.append(hr)
-    elif  hshr < 1000000:
-        #hr = round(hshr / 1000, 1)
-        hrstr = (coin + " " + str(round(hshr / 1000, 1)) + 'KH')
-        hashr.append(hrstr)
-        #hashlist.append(hr)
-    elif  hshr < 1000000000:
-        #hr = round(hshr / 1000000, 2)
-        hrstr = (coin + " " + str(round(hshr / 1000000, 2)) + 'MH')
-        hashr.append(hrstr)
-        #hashlist.append(hr)
-    elif  hshr < 1000000000000:
-        #hr = round(hshr / 1000000000, 2)
-        hrstr = (coin + " " + str(round(hshr / 1000000000, 2)) + 'GH')
-        hashr.append(hrstr)
-        #hashlist.append(hr)
-
-
-    return hashr
+def hashrate_coin(rigs_hashrate,name_of_coin):
+    if  rigs_hashrate < 1000:
+        hashrate = (name_of_coin + " " + str(round(rigs_hashrate, 2)) + 'H(Sol)')
+    elif rigs_hashrate < 1000000:
+        hashrate = (name_of_coin + " " + str(round(rigs_hashrate / 1000, 1)) + 'KH')
+    elif rigs_hashrate < 1000000000:
+        hashrate = (name_of_coin + " " + str(round(rigs_hashrate / 1000000, 2)) + 'MH')
+    elif rigs_hashrate < 1000000000000:
+        hashrate = (name_of_coin + " " + str(round(rigs_hashrate / 1000000000, 2)) + 'GH')
+    else:
+        return rigs_hashrate
+    return hashrate
 
 

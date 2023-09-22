@@ -6,8 +6,8 @@ import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import WtoM,hashrateno, mineros, Hive, Hive, binance, armtek, monitoring_price_changes_minings_coins, timer
-from aiogram.dispatcher import FSMContext, filters
+import WtoM,hashrateno, mineros, Hive, binance, armtek, monitoring_price_changes_minings_coins, timer
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 quantity_rigs = 4
