@@ -6,7 +6,7 @@ import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import WtoM,hashrateno, mineros, Hive, binance, armtek, monitoring_price_changes_minings_coins, timer
+import What_to_mine,hashrateno, mineros, Hive, binance, armtek, monitoring_price_changes_minings_coins, timer
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -45,7 +45,7 @@ async def send_message(message, state):
     elif message.text.lower() == 'профит':
         for j in hashrateno.main_function():
             await bot.send_message(message.from_user.id, str(j).translate({ord(i):None for i in "[]'" }))
-        for i in WtoM.whattomine():
+        for i in What_to_mine.get_profit_of_coins():
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
         armtek_list = armtek.armtek()
