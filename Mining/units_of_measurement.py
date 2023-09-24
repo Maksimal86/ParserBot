@@ -1,5 +1,5 @@
 
-def hashrate_coin(rigs_hashrate,name_of_coin):
+def main(rigs_hashrate,name_of_coin):
     if  rigs_hashrate < 1000:
         hashrate = (name_of_coin + " " + str(round(rigs_hashrate, 2)) + 'H(Sol)')
     elif rigs_hashrate < 1000000:
@@ -10,6 +10,6 @@ def hashrate_coin(rigs_hashrate,name_of_coin):
         hashrate = (name_of_coin + " " + str(round(rigs_hashrate / 1000000000, 2)) + 'GH')
     else:
         return rigs_hashrate
-    return hashrate
+    return main
 
 

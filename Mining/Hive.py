@@ -106,7 +106,7 @@ def get_hashrates_of_all_coins():
         rigs_hashrate = hashrates[number_of_coins_mined]['hashrate'] * 1000
         name_coin = i['coin']
         number_of_coins_mined += 1
-        list_of_hashrates_of_different_coins.append(units_of_measurement.hashrate_coin(rigs_hashrate, name_coin))
+        list_of_hashrates_of_different_coins.append(units_of_measurement.main(rigs_hashrate, name_coin))
     return list_of_hashrates_of_different_coins
 
 
