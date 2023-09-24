@@ -60,8 +60,5 @@ def get_cource_from_binance():
     driver.quit()
 
 
-def delta():
-    get_cource_from_binance()
-
 if __name__ == '__main__':
     get_cource_from_binance()
