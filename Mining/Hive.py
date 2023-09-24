@@ -58,6 +58,44 @@ def get_quantity_of_rig_online():
     return get_responce().json()['stats']['workers_online']
 
 
+def get_farms_url():
+    return 'https://the.hiveos.farm/'
+
+
+def get_service_selenium():
+    return Service(executable_path=r'C:\yandexdriver.exe')
+# Service(executable_path=r'C:\chromedriver.exe')
+
+
+def get_driver_selenium():
+    options = set_options_of_selenium()
+    service = get_service_selenium()
+    return webdriver.Chrome(service=service, options=options)
+
+
+def get_right_page(driver):
+    print('run right page')
+    driver.get(get_farms_url())
+
+
+def get_cookies(driver):
+    return driver.get_cookies()
+
+
+def save_cookies(driver):
+    with open ('hive_cookie.txt', 'w') as file:
+        json.dump(get_cookies(driver), file)
+
+
+def log_in_hive(driver):
+    driver.find_element(By.XPATH, '//*[@id="username"]').send_keys(mytoken.loginhive, Keys.ENTER)
+    time.sleep(2)
+    driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(mytoken.passwordhive, Keys.ENTER)
+    time.sleep(3)
+    driver.find_element(By.XPATH, '//*[@id="kc-form-login"]/div[2]/div[2]/label/span').click()
+    driver.find_element(By.XPATH, '//*[@id="kc-login"]/span').click()
+
+
 def get_hashrates_of_all_coins():
     hashrates = get_responce().json()['hashrates_by_coin']
     print('hashrates', hashrates)
@@ -95,46 +133,8 @@ def get_hive_hashrate():
             file.write('False')
 
 
-def get_farms_url():
-    return 'https://the.hiveos.farm/'
-
-
-def get_service_selenium():
-    return Service(executable_path=r'C:\yandexdriver.exe')
-# Service(executable_path=r'C:\chromedriver.exe')
-
-
-def get_driver_selenium():
-    options = set_options_of_selenium()
-    service = get_service_selenium()
-    return webdriver.Chrome(service=service, options=options)
-
-
-def get_right_page(driver):
-    print('run right page')
-    driver.get(get_farms_url())
-
-
-def log_in_hive(driver):
-    driver.find_element(By.XPATH, '//*[@id="username"]').send_keys(mytoken.loginhive, Keys.ENTER)
-    time.sleep(2)
-    driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(mytoken.passwordhive, Keys.ENTER)
-    time.sleep(3)
-    driver.find_element(By.XPATH, '//*[@id="kc-form-login"]/div[2]/div[2]/label/span').click()
-    driver.find_element(By.XPATH, '//*[@id="kc-login"]/span').click()
-
-
 def enter_kod(driver, kod):
     driver.find_element(By.XPATH, '//*[@id="kc-otp-login-form"]/div/span/input[1]').send_keys(kod)
-
-
-def get_cookies(driver):
-    return driver.get_cookies()
-
-
-def save_cookies(driver):
-    with open ('hive_cookie.txt', 'w') as file:
-        json.dump(get_cookies(driver), file)
 
 
 def get_hive_cookie(kod='нет кода'):
