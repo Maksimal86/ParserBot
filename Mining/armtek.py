@@ -168,6 +168,55 @@ def check_delivery_date(driver, i):   #всегда возвращается Fal
         return False
 
 
+def set_data_and_click_on_get_button(driver):
+    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
+    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
+                                                                  (date.today() - datetime.timedelta(days=20)).strftime(
+                                                                      "%d.%m.%Y"), Keys.ENTER)
+
+
+def get_rejected_positions(driver,i):
+    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[2]/img')
+
+
+def get_date_of_order(driver, i):
+    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div/text()')
+
+
+def check_date_of_order(driver, i):
+    try:
+        if get_date_of_order(driver, i) == date.today().strftime("%d.%m.%Y"):
+            return True
+        else:
+            return False
+    except NoSuchElementException:
+        return False
+
+
+def check_for_rejected_positions(driver, i):
+    try:
+        if get_rejected_positions(driver, i):
+            return True
+    except NoSuchElementException:
+        return False
+
+
+def get_information_about_refusals(driver):
+    print('get_information_about_refusals')
+    for i in range(1,10):
+        if check_for_rejected_positions(driver, i) and  check_date_of_order(driver, i):
+            message = 'Отказ' + get_komment(driver, i)
+        else:
+            message = "Отказов нет"
+        return message
+
+
+def check_and_add_no_delivery(list_of_delivery):
+    if list_of_delivery == []:
+        list_of_delivery.append('Пока поставка не сформирована')
+        print('Поставок нет')
+
+
 def check_right_page(driver):
     try:
         if driver.find_element(By.XPATH, '//*[@id="collapseForm"]/div/div[2]/div[1]/span').text != 'Тип заказа':
@@ -219,55 +268,6 @@ def get_coockie(driver):
     time.sleep(4)
 
 
-def set_data_and_click_on_get_button(driver):
-    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
-    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
-                                                                  (date.today() - datetime.timedelta(days=20)).strftime(
-                                                                      "%d.%m.%Y"), Keys.ENTER)
-
-
-def get_rejected_positions(driver,i):
-    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[2]/img')
-
-
-def get_date_of_order(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div/text()')
-
-
-def check_date_of_order(driver, i):
-    try:
-        if get_date_of_order(driver, i) == date.today().strftime("%d.%m.%Y"):
-            return True
-        else:
-            return False
-    except NoSuchElementException:
-        return False
-
-
-def check_for_rejected_positions(driver, i):
-    try:
-        if get_rejected_positions(driver, i):
-            return True
-    except NoSuchElementException:
-        return False
-
-
-def get_information_about_refusals(driver):
-    print('get_information_about_refusals')
-    for i in range(1,10):
-        if check_for_rejected_positions(driver, i) and  check_date_of_order(driver, i):
-            message = 'Отказ' + get_komment(driver, i)
-        else:
-            message = "Отказов нет"
-        return message
-
-
-def check_and_add_no_delivery(list_of_delivery):
-    if list_of_delivery == []:
-        list_of_delivery.append('Пока поставка не сформирована')
-        print('Поставок нет')
-
-
 def get_data_from_5_to_11(driver):
     print('run get_data_from_5_to_11')
     if check_right_page(driver) == False:
@@ -308,20 +308,16 @@ def get_data_from_11_to_05(driver):
     return list_of_delivery
 
 
-def armtek():
+def main():
     print(' run armtek')
     driver = get_driver_selenium()
     get_right_page(driver)
     time.sleep(3)
     try:
         with open('sess.txt') as sess:
-            cookies = json.load(sess) # забираем куки из файла
+            cookies = json.load(sess)
         for i in range(len(cookies)):
             driver.add_cookie({'name':cookies[i]['name'], 'value':cookies[i]['value']})
-# Куки добавляются именно так, по другому с добавлением всех элемeнтов не работает -
-# из каждого словаря из списка словарей берутся значения по ключам 'name' и 'value',
-# которые потом попадают в соответствующие словари с этими же ключами и значениями
-# остальные данные кук селениум добавляет сам.
         get_right_page(driver)
         if check_right_page(driver) == False:
             print('str 279 get_coockie()')
@@ -335,4 +331,4 @@ def armtek():
         driver.quit()
 
 if __name__ == '__main__':
-    armtek()
+    main()

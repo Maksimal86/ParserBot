@@ -48,7 +48,7 @@ async def send_message(message, state):
         for i in What_to_mine.get_profit_of_coins():
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
-        armtek_list = armtek.armtek()
+        armtek_list = armtek.main()
         print('armtek_list', armtek_list)
         if not armtek_list:
             await bot.send_message(message.from_user.id, 'Пока поставка не сформирована')
@@ -108,7 +108,7 @@ async def monitoring_price_changes(message):
 
 async def get_data_from_armtek_and_send_message(message):
     pause = 6000
-    armtek_list = armtek.armtek()
+    armtek_list = armtek.main()
     for i in armtek_list:
         await bot.send_message(message.from_user.id, i)
     await asyncio.sleep(pause)
