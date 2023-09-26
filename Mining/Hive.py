@@ -55,8 +55,10 @@ def get_necessary_cookies():
 
 
 def get_quantity_of_rig_online():
-    return get_responce().json()['stats']['workers_online']
-
+    try:
+        return get_responce().json()['stats']['workers_online']
+    except KeyError:
+        get_hive_cookie()
 
 def get_farms_url():
     return 'https://the.hiveos.farm/'
