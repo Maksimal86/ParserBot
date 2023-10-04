@@ -21,7 +21,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
+    # options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -154,8 +154,9 @@ def check_delivery_date(driver, i):   #всегда возвращается Fal
         print('inspect.stack()[1][3] =', inspect.stack()[1][3])
         if inspect.stack()[1][3] == 'get_data_about_upcomming_delivery':
             if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == \
-                    date_of_delivery and get_date_factura(driver, i) is None or \
-                    date.today().strftime("%d.%m.%Y") == date_of_delivery and get_date_factura(driver, i) is None:
+                    date_of_delivery and get_date_factura(driver, i) == '' or \
+                    date.today().strftime("%d.%m.%Y") == date_of_delivery and get_date_factura(driver, i) == '':
+                print('True')
                 return True
             else:
                 return False
@@ -180,7 +181,7 @@ def get_rejected_positions(driver,i):
 
 
 def get_date_of_order(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div/text()')
+    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div').text
 
 
 def check_date_of_order(driver, i):
@@ -259,7 +260,7 @@ def get_data_about_upcomming_delivery(driver):
 def get_coockie(driver):
     print('run armtek_cookie()')
     log_in_armtek(driver)
-    time.sleep(4)
+    time.sleep(20)
     if driver.current_url != get_url():
         get_coockie(driver)
     cookies=driver.get_cookies()
@@ -322,6 +323,7 @@ def main():
         if check_right_page(driver) == False:
             print('str 279 get_coockie()')
             get_coockie(driver)
+            return   ['Не вошли в Армтек']
         time.sleep(5)
         return select_desired_function(driver)
     except:
