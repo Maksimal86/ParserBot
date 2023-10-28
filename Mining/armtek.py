@@ -60,16 +60,18 @@ def log_in_armtek(driver):
     print('log in armtek')
     try:
         driver.find_element(By.XPATH, '//*[@id="login"]').clear()
+        time.sleep(5)
         driver.find_element(By.XPATH, '//*[@id="login"]').send_keys(get_login())
+        time.sleep(5)
         driver.find_element(By.XPATH,
                             '//*[@id="authNewTemplateFormContainer"]/div/div[1]/div[2]/div/form/div[4]/div[1]/label'
                             '/i[1]')
         '//*[@id="login-btn"]'
         driver.find_element(By.XPATH, '//*[@id="password"]').clear()
-
+        time.sleep(5)
         driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(get_password(), Keys.ENTER)
     except NoSuchElementException:
-        print('except str64 само зашло')
+        print('except str64 само зашло') #проверить логику
 
 
 def get_amount_of_delivery(driver, i):
@@ -159,11 +161,14 @@ def check_delivery_date(driver, i):   #всегда возвращается Fal
                 print('True')
                 return True
             else:
+                print("False")
                 return False
         elif inspect.stack()[1][3] == 'get_data_from_5_to_11':
             if date.today().strftime("%d.%m.%Y") == get_date_factura(driver, i):
                 print(True)
                 return True
+            else:
+                print("False")
     except NoSuchElementException:
         print(sys.exc_info())
         return False
@@ -257,13 +262,29 @@ def get_data_about_upcomming_delivery(driver):
         traceback.print_exc()
 
 
-def get_coockie(driver):
+def set_cookies(driver):
+    with open('sess.txt') as sess:
+        cookies = json.load(sess)  # забираем куки из файла
+    k = driver.get_cookies()
+    print(k)
+    for i in range(len(cookies)):
+        driver.add_cookie({'name': cookies[i]['name'], 'value': cookies[i]['value']})
+    # Куки добавляются именно так, по другому с добавлением всех элемeнтов не работает -
+    # из каждого словаря из списка словарей берутся значения по ключам 'name' и 'value',
+    # которые потом попадают в соответствующие словари с этими же ключами и значениями
+    # остальные данные кук селениум добавляет сам.
+
+
+def get_cookies(driver):
+    return driver.get_cookies()
+
+
+def write_of_cookies_in_file(driver):
     print('run armtek_cookie()')
     log_in_armtek(driver)
     time.sleep(20)
-    if driver.current_url != get_url():
-        get_coockie(driver)
-    cookies=driver.get_cookies()
+    driver.refresh()
+    cookies = get_cookies(driver)
     with open('sess.txt', 'w') as file:
         json.dump(cookies,file)
     time.sleep(4)
@@ -271,34 +292,32 @@ def get_coockie(driver):
 
 def get_data_from_5_to_11(driver):
     print('run get_data_from_5_to_11')
-    if check_right_page(driver) == False:
-        get_coockie(driver)
-    else:
-        list_of_delivery=[]
-        try:
-            set_data_and_click_on_get_button(driver)
-            # парсим 10 строк в заказах
-            for i in range(1,10):
-                if check_delivery_date(driver, i) == True:
-                    print(check_delivery_date(driver,i))
-                    driver.get(get_link_of_factura(driver, i))
-                    # парсим 15 строк в фактуре
-                    for i in range(1, 15):
-                        time.sleep(5)
-                        try:
-                            spare_parts = get_list_of_spare_parts_by_factura(driver, i)
-                            print('запчасти', spare_parts)
-                            list_of_delivery.append(spare_parts)
-                        except NoSuchElementException:
-                            break
+    write_of_cookies_in_file(driver)
+    list_of_delivery=[]
+    try:
+        set_data_and_click_on_get_button(driver)
+        # парсим 15 строк в заказах
+        for i in range(1,15):
+            if check_delivery_date(driver, i) == True:
+                print(check_delivery_date(driver,i))
+                driver.get(get_link_of_factura(driver, i))
+                # парсим 15 строк в фактуре
+                for i in range(1, 20):
+                    time.sleep(5)
+                    try:
+                        spare_parts = get_list_of_spare_parts_by_factura(driver, i)
+                        print('запчасти', spare_parts)
+                        list_of_delivery.append(spare_parts)
+                    except NoSuchElementException:
+                        break
             check_and_add_no_delivery(list_of_delivery)
             list_of_delivery.append(get_information_about_refusals(driver))
             print(list_of_delivery)
             return list_of_delivery
-        except IndexError:
-            print('данных больше нет')
-            check_and_add_no_delivery(list_of_delivery)
-            return list_of_delivery
+    except IndexError:
+        print('данных больше нет')
+        check_and_add_no_delivery(list_of_delivery)
+        return list_of_delivery
 
 
 def get_data_from_11_to_05(driver):
@@ -306,6 +325,7 @@ def get_data_from_11_to_05(driver):
     list_of_delivery = get_data_about_upcomming_delivery(driver)
     check_and_add_no_delivery(list_of_delivery)
     list_of_delivery.append(get_information_about_refusals(driver))
+    write_of_cookies_in_file(driver)
     return list_of_delivery
 
 
@@ -315,14 +335,9 @@ def main():
     get_right_page(driver)
     time.sleep(3)
     try:
-        with open('sess.txt') as sess:
-            cookies = json.load(sess)
-        for i in range(len(cookies)):
-            driver.add_cookie({'name':cookies[i]['name'], 'value':cookies[i]['value']})
+        set_cookies(driver)
         get_right_page(driver)
-        if check_right_page(driver) == False:
-            print('str 279 get_coockie()')
-            get_coockie(driver)
+        if check_right_page(driver) == False:  # проверить логику
             return   ['Не вошли в Армтек']
         time.sleep(5)
         return select_desired_function(driver)
