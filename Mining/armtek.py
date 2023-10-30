@@ -181,10 +181,6 @@ def set_data_and_click_on_get_button(driver):
                                                                       "%d.%m.%Y"), Keys.ENTER)
 
 
-def get_rejected_positions(driver,i):
-    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[2]/img')
-
-
 def get_date_of_order(driver, i):
     return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div').text
 
@@ -199,22 +195,26 @@ def check_date_of_order(driver, i):
         return False
 
 
-def check_for_rejected_positions(driver, i):
+def check_rejected_positions(driver, i):
     try:
-        if get_rejected_positions(driver, i):
+        if get_amount_of_delivery(driver, i) == '0':
+            print("True reject")
             return True
+        else:
+            print('False reject')
+            return False
     except NoSuchElementException:
+        print('False reject')
         return False
 
 
-def get_information_about_refusals(driver):
+def get_information_about_refusals(driver, i):
     print('get_information_about_refusals')
-    for i in range(1,10):
-        if check_for_rejected_positions(driver, i) and  check_date_of_order(driver, i):
-            message = 'Отказ' + get_komment(driver, i)
-        else:
-            message = "Отказов нет"
-        return message
+    if check_rejected_positions(driver, i) and  check_date_of_order(driver, i):
+        message = 'Отказ' + get_komment(driver, i)
+    else:
+        message = ""
+    return message
 
 
 def check_and_add_no_delivery(list_of_delivery):
@@ -243,14 +243,13 @@ def get_data_about_upcomming_delivery(driver):
     try:
         for i in range(1,15):
             amount_of_delivery = get_amount_of_delivery(driver, i)
+            list_of_delivery.append(get_information_about_refusals(driver, i))
             if check_delivery_date(driver, i) == True:
-                print('check_delivery_date()  == True')
                 get_amount_of_delivery(driver,i)
                 komment = get_komment(driver,i)
                 list_of_delivery.append('Сумма: ' + amount_of_delivery + 'руб, комментарий: ' + komment)
                 print(amount_of_delivery, '\n', komment)
             else:
-                print('check_delivery_date() == False')
                 continue
         if list_of_delivery == []:
             return []
@@ -280,9 +279,9 @@ def get_cookies(driver):
 
 
 def write_of_cookies_in_file(driver):
-    print('run armtek_cookie()')
-    log_in_armtek(driver)
-    time.sleep(20)
+    ''' обновляем куки в файле для того
+    чтобы заходить постоянно без
+    ввода капчи'''
     driver.refresh()
     cookies = get_cookies(driver)
     with open('sess.txt', 'w') as file:
@@ -301,7 +300,8 @@ def get_data_from_5_to_11(driver):
             if check_delivery_date(driver, i) == True:
                 print(check_delivery_date(driver,i))
                 driver.get(get_link_of_factura(driver, i))
-                # парсим 15 строк в фактуре
+                list_of_delivery.append(get_information_about_refusals(driver,i)) ##3###############
+                # парсим 20 строк в фактуре
                 for i in range(1, 20):
                     time.sleep(5)
                     try:
@@ -311,7 +311,7 @@ def get_data_from_5_to_11(driver):
                     except NoSuchElementException:
                         break
             check_and_add_no_delivery(list_of_delivery)
-            list_of_delivery.append(get_information_about_refusals(driver))
+
             print(list_of_delivery)
             return list_of_delivery
     except IndexError:
@@ -324,7 +324,6 @@ def get_data_from_11_to_05(driver):
     print('run get_data_from_11_to_24() ')
     list_of_delivery = get_data_about_upcomming_delivery(driver)
     check_and_add_no_delivery(list_of_delivery)
-    list_of_delivery.append(get_information_about_refusals(driver))
     write_of_cookies_in_file(driver)
     return list_of_delivery
 
@@ -337,7 +336,7 @@ def main():
     try:
         set_cookies(driver)
         get_right_page(driver)
-        if check_right_page(driver) == False:  # проверить логику
+        if check_right_page(driver) == False:
             return   ['Не вошли в Армтек']
         time.sleep(5)
         return select_desired_function(driver)

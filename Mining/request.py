@@ -54,7 +54,10 @@ async def send_message(message, state):
             await bot.send_message(message.from_user.id, 'Пока поставка не сформирована')
         else:
             for i in armtek_list:
-                await bot.send_message(message.from_user.id, i)
+                if i == '':
+                    continue
+                else:
+                    await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'курсы валют':
         for i in binance.get_cource_from_binance():
             await bot.send_message(message.from_user.id, i)
