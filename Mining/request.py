@@ -53,6 +53,7 @@ async def send_message(message, state):
         if not armtek_list:
             await bot.send_message(message.from_user.id, 'Пока поставка не сформирована')
         else:
+            # придумать проверку на наличие в списке только пустых строк, и вывод соответствующего сообщения
             for i in armtek_list:
                 if i == '':
                     continue

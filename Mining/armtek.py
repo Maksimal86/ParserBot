@@ -107,22 +107,22 @@ def get_link_of_factura(driver, i):
 
 
 def get_times_objects():
-    time_object_11_00_00 = get_timeobject('11:00:00')
+    time_object_12_00_00 = get_timeobject('12:00:00')
     time_object_00_00_00 = get_timeobject('00:00:00')
     time_object_05_00_00 = get_timeobject('05:00:00')
     time_object_23_59_59 = get_timeobject('23:59:59')
-    return time_object_11_00_00, time_object_00_00_00, time_object_05_00_00, time_object_23_59_59
+    return time_object_12_00_00, time_object_00_00_00, time_object_05_00_00, time_object_23_59_59
 
 
 def select_desired_function(driver):
     time_now = get_time_now()
-    time_object_11_00_00, time_object_00_00_00, time_object_05_00_00, time_object_23_59_59 = get_times_objects()
+    time_object_12_00_00, time_object_00_00_00, time_object_05_00_00, time_object_23_59_59 = get_times_objects()
     try:
-        if time_now > time_object_11_00_00 and time_now < time_object_23_59_59:
+        if time_now > time_object_12_00_00 and time_now < time_object_23_59_59:
             return get_data_from_11_to_05(driver)
         elif time_now > time_object_00_00_00 and time_now < time_object_05_00_00:
             return  get_data_from_11_to_05(driver)
-        elif time_now > time_object_05_00_00 and time_now < time_object_11_00_00:
+        elif time_now > time_object_05_00_00 and time_now < time_object_12_00_00:
             return get_data_from_5_to_11(driver)
         else:
             print('str 122 где-то ошибка по времени')
@@ -139,6 +139,7 @@ def get_date_factura(driver,i):
     try:
         return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]/div/div').text
     except NoSuchElementException:
+        print('str 143 NoSuchElementException')
         return ''
 
 
@@ -149,7 +150,7 @@ def get_page_with_orders(driver):
                                                                       "%d.%m.%Y"), Keys.ENTER)
 
 
-def check_delivery_date(driver, i):   #всегда возвращается False
+def check_delivery_date(driver, i):
     print("run check_delivery_date" )
     date_of_delivery = get_date_of_delivery(driver, i)
     try:
@@ -164,6 +165,7 @@ def check_delivery_date(driver, i):   #всегда возвращается Fal
                 print("False")
                 return False
         elif inspect.stack()[1][3] == 'get_data_from_5_to_11':
+            print('get_date_factura(driver, i)', get_date_factura(driver, i))
             if date.today().strftime("%d.%m.%Y") == get_date_factura(driver, i):
                 print(True)
                 return True
@@ -296,11 +298,12 @@ def get_data_from_5_to_11(driver):
     try:
         set_data_and_click_on_get_button(driver)
         # парсим 15 строк в заказах
-        for i in range(1,15):
+        for i in range(1,15): # исправить на "1"
             if check_delivery_date(driver, i) == True:
+                print('str 307 i = ',i)
                 print(check_delivery_date(driver,i))
                 driver.get(get_link_of_factura(driver, i))
-                list_of_delivery.append(get_information_about_refusals(driver,i)) ##3###############
+                list_of_delivery.append(get_information_about_refusals(driver,i))
                 # парсим 20 строк в фактуре
                 for i in range(1, 20):
                     time.sleep(5)
@@ -310,6 +313,9 @@ def get_data_from_5_to_11(driver):
                         list_of_delivery.append(spare_parts)
                     except NoSuchElementException:
                         break
+            else:
+                continue
+
             check_and_add_no_delivery(list_of_delivery)
 
             print(list_of_delivery)
