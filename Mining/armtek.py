@@ -213,7 +213,7 @@ def check_rejected_positions(driver, i):
 def get_information_about_refusals(driver, i):
     print('get_information_about_refusals')
     if check_rejected_positions(driver, i) and  check_date_of_order(driver, i):
-        message = 'Отказ' + get_komment(driver, i)
+        message = 'Отказ ' + get_komment(driver, i)
     else:
         message = ""
     return message
@@ -256,10 +256,10 @@ def get_data_about_upcomming_delivery(driver):
         if list_of_delivery == []:
             return []
         else:
-            print((list_of_delivery))
+            print('list_of_delivery - ',(list_of_delivery))
             return list_of_delivery
     except:
-        print('Error str200')
+        print('Error str262')
         traceback.print_exc()
 
 

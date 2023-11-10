@@ -51,11 +51,12 @@ async def send_message(message, state):
         armtek_list = armtek.main()
         print('armtek_list', armtek_list)
         if not armtek_list:
-            await bot.send_message(message.from_user.id, 'Пока поставка не сформирована')
+            await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
         else:
-            # придумать проверку на наличие в списке только пустых строк, и вывод соответствующего сообщения
             for i in armtek_list:
-                if i == '':
+                if i == '' and i == len(armtek_list):
+                    await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
+                elif i == '':
                     continue
                 else:
                     await bot.send_message(message.from_user.id, i)
@@ -113,8 +114,17 @@ async def monitoring_price_changes(message):
 async def get_data_from_armtek_and_send_message(message):
     pause = 6000
     armtek_list = armtek.main()
-    for i in armtek_list:
-        await bot.send_message(message.from_user.id, i)
+    print('armtek_list', armtek_list)
+    if not armtek_list:
+        await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
+    else:
+        for i in armtek_list:
+            if i == '' and i == len(armtek_list):
+                await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
+            elif i == '':
+                continue
+            else:
+                await bot.send_message(message.from_user.id, i)
     await asyncio.sleep(pause)
 
 
