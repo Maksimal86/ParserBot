@@ -49,12 +49,14 @@ async def send_message(message, state):
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
         armtek_list = armtek.main()
-        print('armtek_list', armtek_list)
+        print('armtek_list from request', armtek_list)
         if not armtek_list:
             await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
         else:
+            counter = 0
             for i in armtek_list:
-                if i == '' and i == len(armtek_list):
+                counter += 1
+                if i == '' and counter == len(armtek_list)-1:
                     await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
                 elif i == '':
                     continue

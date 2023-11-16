@@ -21,7 +21,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    # options.add_argument("--headless")  # скрытый запуск браузера
+    options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -60,16 +60,17 @@ def log_in_armtek(driver):
     print('log in armtek')
     try:
         driver.find_element(By.XPATH, '//*[@id="login"]').clear()
-        time.sleep(5)
+        time.sleep(1)
         driver.find_element(By.XPATH, '//*[@id="login"]').send_keys(get_login())
-        time.sleep(5)
+        time.sleep(1)
         driver.find_element(By.XPATH,
                             '//*[@id="authNewTemplateFormContainer"]/div/div[1]/div[2]/div/form/div[4]/div[1]/label'
                             '/i[1]')
         '//*[@id="login-btn"]'
         driver.find_element(By.XPATH, '//*[@id="password"]').clear()
-        time.sleep(5)
+        time.sleep(1)
         driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(get_password(), Keys.ENTER)
+        time.sleep(15)
     except NoSuchElementException:
         print('except str64 само зашло') #проверить логику
 
@@ -264,6 +265,7 @@ def get_data_about_upcomming_delivery(driver):
 
 
 def set_cookies(driver):
+    print('run set_cokies')
     with open('sess.txt') as sess:
         cookies = json.load(sess)  # забираем куки из файла
     k = driver.get_cookies()
@@ -343,8 +345,10 @@ def main():
         set_cookies(driver)
         get_right_page(driver)
         if check_right_page(driver) == False:
-            return   ['Не вошли в Армтек']
-        time.sleep(5)
+            log_in_armtek(driver)
+            time.sleep(3)
+            if check_right_page(driver) == False:
+                return   ['Не вошли в Армтек']
         return select_desired_function(driver)
     except:
         driver.close()
