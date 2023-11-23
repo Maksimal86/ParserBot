@@ -3,7 +3,7 @@ import sys, requests, lxml
 from bs4 import BeautifulSoup
 
 
-def hashrate_no_get_coin_price():
+def hashrateno_get_coin_price():
     return getting_coin_attrbutes()
 
 
@@ -27,15 +27,15 @@ def get_coin_name(i):
 
 
 def get_coin_price(i):
-    return i.findAll('table')[1].find('td', class_='coinsData').next_sibling.text
+    return i.findAll('table')[1].find('td', class_='coinsData').text
 
 
 def get_coins_delta_price_hour(i):
-    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[2].text + ' за 1 час'
+    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[1].text+ ' за 1 час'
 
 
 def get_coins_delta_price_day(i):
-    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[4].text
+    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[3].text
 
 
 def getting_coin_attrbutes():
@@ -44,4 +44,4 @@ def getting_coin_attrbutes():
 
 
 if __name__ == '__main__':
-    hashrate_no_get_coin_price()
+    hashrateno_get_coin_price()

@@ -47,7 +47,7 @@ def get_cource_from_binance():
     for page in [1,2,3]:
         driver.get(get_url(page))
         time.sleep(1)
-        find_coin=['BTC', 'ETH','XRP','ETC','FIL','SKL','ETHW','USDT']
+        find_coin=['BTC', 'ETH','XRP','FIL','SKL','ETHW','USDT']
         for i in range(1,16):
             coin = get_coin(driver,i)
             price_of_coin = get_price_of_coin(driver,i)

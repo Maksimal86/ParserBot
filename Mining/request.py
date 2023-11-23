@@ -31,7 +31,10 @@ async def send_message(message, state):
     but.add(btn1, btn2, btn3, btn4, btn5, btn6)
     print(message.text.lower(), message)
     if message.text.lower() == 'хешрейт':
-        await bot.send_message(message.from_user.id, Hive.get_hive_hashrate(), reply_markup=but)
+        if Hive.get_hive_hashrate() == False:
+            await need_send_kod(message, state)
+        else:
+            await bot.send_message(message.from_user.id, Hive.get_hive_hashrate(), reply_markup=but)
     elif message.text.lower() == 'старт':
         await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
         print('старт')
@@ -72,10 +75,12 @@ async def send_message(message, state):
 
 async def monitoring_number_of_rigs(message, state):
     while course_change_observer:
-        await check_hive_work(message, state)
+        # await check_hive_work(message, state)
         print('monitoring_number_of_rigs run', course_change_observer)
         quantity_rigs_online = Hive.get_quantity_of_rig_online()
-        if quantity_rigs_online < quantity_rigs:
+        if quantity_rigs_online == False:
+            await need_send_kod(message, state)
+        elif  quantity_rigs_online < quantity_rigs:
             await asyncio.sleep(0.3)
             await bot.send_message(message.from_user.id, text='Hive rig offline, online rigs = ' + str(
                 Hive.get_quantity_of_rig_online()))
@@ -84,21 +89,20 @@ async def monitoring_number_of_rigs(message, state):
             with open('log.txt', 'a') as log:
                 log.write('Hive' + str(datetime.datetime.now()) + 'rig offline' +
                           str(Hive.get_quantity_of_rig_online()) + '\n')
-        if quantity_rigs_online == quantity_rigs:
+        elif quantity_rigs_online == quantity_rigs:
             mineros.period = 180
         await asyncio.sleep(mineros.period)
 
 
 async def monitoring_price_changes(message):
-    try:
+    # try:
         while course_change_observer:
             print('binance run', course_change_observer)
             for i in binance.get_cource_from_binance():
                 print(i,(i[2][:-1]), float(i[2][:-1]))
                 if float(i[2][:-1])>5 or float(i[2][:-1])<-5:
                     await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
-            gen=monitoring_price_changes_minings_coins.hashrate_no_get_coin_price()
-            for i in gen :
+            for i in monitoring_price_changes_minings_coins.hashrateno_get_coin_price():
                 print(i)
                 if i[3]>15 or i[3]<-15:
                     await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
@@ -108,9 +112,9 @@ async def monitoring_price_changes(message):
             if float(cource_rub_usd[1][:-1]) > 2 or float(cource_rub_usd[1][:-1]) < -2:
                 await bot.send_message(message.from_user.id, text="Изменение больше 2% USD/RUB" + str(cource_rub_usd))
             await asyncio.sleep(3600*3)
-    except:
-        with open("log.txt", 'a') as log:
-            log.write('monitoring_price_changes '+str(datetime.datetime.now())+' '+str(sys.exc_info())+'\n')
+    # except:
+    #     with open("log.txt", 'a') as log:
+    #         log.write('monitoring_price_changes '+str(datetime.datetime.now())+' '+str(sys.exc_info())+'\n')
 
 
 async def get_data_from_armtek_and_send_message(message):
@@ -176,18 +180,18 @@ async def get_kod_of_authenticator(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         Hive.hive_get_kod_of_authenticator(data['G_kod'])
     await state.finish()
+    await bot.send_message(message.from_user.id,text=Hive.get_hive_hashrate())
 
 
 async def check_hive_work(message, state: FSMContext):
     """
-    Для получения кода аутентификатора(отключено)
+    Для получения кода аутентификатора()
     """
-    pass
-    # print('run check_hive_work()')
-    # with open('hive_work.txt', 'r') as file:
-    #    read= file.read()
-    # if read == 'False':
-    #     await need_send_kod(message, state)
+    print('run check_hive_work()')
+    with open('hive_work.txt', 'r') as file:
+       read= file.read()
+    if read == 'False':
+        await need_send_kod(message, state)
 try:
     executor.start_polling(dp)
 except:
