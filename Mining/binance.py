@@ -34,11 +34,11 @@ def get_coin(driver,i):
 
 
 def get_price_of_coin(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[1]/div').text
+    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[1]').text
 
 
 def get_delta_of_coin_price(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[2]/div').text
+    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[2]').text
 
 
 def get_cource_from_binance():
@@ -55,7 +55,7 @@ def get_cource_from_binance():
             if coin in find_coin:
                 data_of_coin.append(coin + ' ' + price_of_coin + ' ' + delta_of_coin_price)
                 print(coin + ' ' + price_of_coin + ' ' + delta_of_coin_price)
-                yield coin, price_of_coin, delta_of_coin_price
+            yield coin, price_of_coin, delta_of_coin_price
     driver.close()
     driver.quit()
 
