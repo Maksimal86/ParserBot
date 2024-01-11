@@ -43,13 +43,13 @@ class Browser():
 
     def exclude_nice_hash(self):
         time.sleep(1)
-        self.driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/div[2]/div[2]/div[2]/div[3]/form[2]/'
-                                          'div[3]/div[2]/div/input[2]').click()
+        self.driver.find_element(By.XPATH,
+                                 '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[2]/div[2]/form[2]/div[3]/div[2]/div/input[2]').click()
 
 
 
     def get_main_teg(self):
-        main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[4]')
+        main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[2]/div[3]')
         return main_teg
 
     def get_list_of_names_coins(self):
