@@ -16,7 +16,7 @@ def set_options_of_selenium():
 
 
 def get_service_selenium():
-    return Service(executable_path=r'C:\yandexdriver.exe')
+    return Service(executable_path=r'C:/chromedriver.exe')
 
 
 def get_driver_selenium():

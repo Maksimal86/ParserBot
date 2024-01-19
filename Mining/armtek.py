@@ -31,7 +31,7 @@ def options_add():
 
 
 def get_driver_selenium():
-    service = Service(executable_path=r'C:\yandexdriver.exe')  # расположение драйвера
+    service = Service(executable_path=r'C:/chromedriver.exe')  # расположение драйвера
     options = options_add()
     return webdriver.Chrome(service=service, options=options)
 

@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 class Browser():
     def __init__(self):
         self.options = Browser.set_options_selenium(self)
-        self.s = Service(executable_path=r'C:\yandexdriver.exe')
+        self.s = Service(executable_path=r'C:/chromedriver.exe')
         self.driver = webdriver.Chrome(options=self.options, service=self.s)
 
     def set_options_selenium(self):

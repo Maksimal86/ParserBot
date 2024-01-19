@@ -75,7 +75,7 @@ def get_farms_url():
 
 
 def get_service_selenium():
-    return Service(executable_path=r'C:\yandexdriver.exe')
+    return Service(executable_path=r'C:/chromedriver.exe')
 # Service(executable_path=r'C:\chromedriver.exe')
 
 
