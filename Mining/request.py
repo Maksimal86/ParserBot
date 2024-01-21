@@ -104,9 +104,11 @@ async def monitoring_price_changes(message):
                     await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
             for i in monitoring_price_changes_minings_coins.hashrateno_get_coin_price():
                 print(i)
-                if i[3]>15 or i[3]<-15:
-                    await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
-                                           translate({ord(i): None for i in '()'})+'% за 24 часа')
+                if i[3] == 'N/':
+                    await bot.send_message(message.from_user.id, text="По измененияем нет данных ")
+                elif float(i[3])>15 or float(i[3])<-15:
+                        await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
+                                               translate({ord(i): None for i in '()'})+'% за 24 часа')
             cource_rub_usd = USD_RUB.main()
             print(cource_rub_usd)
             if float(cource_rub_usd[1][:-1]) > 2 or float(cource_rub_usd[1][:-1]) < -2:
