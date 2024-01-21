@@ -40,7 +40,7 @@ def get_coins_delta_price_day(i):
 
 def getting_coin_attrbutes():
     for i in getting_main_tag():
-        yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), float(get_coins_delta_price_day(i)[:-1])
+        yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
 
 
 if __name__ == '__main__':
