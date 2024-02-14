@@ -99,9 +99,12 @@ async def monitoring_price_changes(message):
         while course_change_observer:
             print('binance run', course_change_observer)
             for i in binance.get_cource_from_binance():
-                print(i,(i[2][:-1]), float(i[2][:-1]))
-                if float(i[2][:-1])>5 or float(i[2][:-1])<-5:
-                    await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
+                try:
+                    print(i,(i[2][:-1]), float(i[2][:-1]))
+                    if float(i[2][:-1])>5 or float(i[2][:-1])<-5:
+                        await bot.send_message(message.from_user.id, text="Изменение больше 5% "+str(i))
+                except:
+                    continue
             for i in monitoring_price_changes_minings_coins.hashrateno_get_coin_price():
                 print(i)
                 if i[3] == 'N/':

@@ -3,6 +3,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import StaleElementReferenceException
 
 
 def set_options_of_selenium():
@@ -30,16 +31,22 @@ def get_url(page):
 
 
 def get_coin(driver,i):
-    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/a/div/div/div[2]/div').text
-
+    try :
+        return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/a/div/div/div[2]/div[1]').text
+    except StaleElementReferenceException:
+        return '0'
 
 def get_price_of_coin(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[1]').text
-
+    try:
+        return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[1]').text
+    except StaleElementReferenceException:
+        return '0'
 
 def get_delta_of_coin_price(driver, i):
-    return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[2]').text
-
+    try:
+        return driver.find_element(By.XPATH, f'//*[@id="tabContainer"]/div[2]/div[3]/div/div/div[2]/div[{i}]/div/div[2]').text
+    except StaleElementReferenceException:
+        return '0'
 
 def get_cource_from_binance():
     driver = get_driver_selenium()
