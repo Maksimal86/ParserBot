@@ -10,7 +10,7 @@ import What_to_mine,hashrateno, mineros, Hive, binance, armtek, monitoring_price
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-quantity_rigs = 4
+quantity_rigs = 2
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ async def send_message(message, state):
         print('старт')
         global course_change_observer
         course_change_observer = True
-        await asyncio.gather(monitoring_of_armtek_delivery(message),monitoring_number_of_rigs(message, state),
+        await asyncio.gather(monitoring_of_armtek_delivery(message),
                              monitoring_price_changes(message))
     elif message.text.lower() == 'стоп':
         course_change_observer = False
@@ -113,9 +113,8 @@ async def monitoring_price_changes(message):
                         await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
                                                translate({ord(i): None for i in '()'})+'% за 24 часа')
             cource_rub_usd = USD_RUB.main()
+            await bot.send_message(message.from_user.id, text=cource_rub_usd)
             print(cource_rub_usd)
-            if float(cource_rub_usd[1][:-1]) > 2 or float(cource_rub_usd[1][:-1]) < -2:
-                await bot.send_message(message.from_user.id, text="Изменение больше 2% USD/RUB" + str(cource_rub_usd))
             await asyncio.sleep(3600*3)
     # except:
     #     with open("log.txt", 'a') as log:

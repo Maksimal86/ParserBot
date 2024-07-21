@@ -44,17 +44,15 @@ class Browser():
     def exclude_nice_hash(self):
         time.sleep(1)
         self.driver.find_element(By.XPATH,
-                                 '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[2]/div[2]/form[2]/div[3]/div[2]/div/input[2]').click()
-
-
+                                 '/html/body/div/div[2]/div[5]/div[2]/div[2]/div[3]/div[2]/form[2]/div[3]/div[2]/div/input[1]').click()
 
     def get_main_teg(self):
-        main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[2]/div[2]/div[2]/div[2]/div[3]')
+        main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[5]/div[2]/div[2]/div[3]/div[4]')
         return main_teg
 
     def get_list_of_names_coins(self):
         list_of_names_coins = []
-        web_element_coins_names = Browser.get_main_teg(self).find_elements(By.CLASS_NAME, 'deviceHeader')
+        web_element_coins_names = Browser.get_main_teg(self).find_elements(By.CLASS_NAME, 'deviceHeader2')
         for i in web_element_coins_names:
             list_of_names_coins.append(i)
         return list_of_names_coins
@@ -62,7 +60,8 @@ class Browser():
     def get_list_of_coins_profit(self):
         list_of_coins_profit = []
         web_element_coins_profit = Browser.get_main_teg(self)\
-            .find_elements(By.CSS_SELECTOR, 'div>div:nth-of-type(3)>table>tbody>tr:nth-of-type(1)>td:nth-of-type(2)')
+            .find_elements(By.CSS_SELECTOR, 'table')
+        # '#myUL > li:nth-child(1) > div > div > div > div > div.w3-col.l9.m12.s12 > div:nth-child(2) > div:nth-child(2) > div > center > table > tbody > tr:nth-child(3) > td'
         for i in web_element_coins_profit:
             list_of_coins_profit.append(i)
         return list_of_coins_profit

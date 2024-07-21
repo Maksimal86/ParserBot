@@ -2,6 +2,8 @@
 
 
 import sys, requests, lxml
+import traceback
+
 from bs4 import BeautifulSoup
 
 
@@ -25,11 +27,11 @@ def getting_main_tag():
 
 
 def get_coin_name(i):
-    return i.find('span',class_="deviceHeader").text
+    return i.find('span',class_="deviceHeader2").text
 
 
 def get_coin_price(i):
-    return i.findAll('table')[1].find('td', class_='coinsData').text
+    return i.findAll('table')[1].find('td', class_='deviceHeader2').next_sibling.text
 
 
 def get_coins_delta_price_hour(i):
@@ -42,8 +44,11 @@ def get_coins_delta_price_day(i):
 
 def getting_coin_attrbutes():
     for i in getting_main_tag():
-        yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
-
+        try:
+            yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
+        except:
+            traceback.print_exc()
+            continue
 
 if __name__ == '__main__':
     hashrateno_get_coin_price()

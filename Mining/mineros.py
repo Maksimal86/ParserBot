@@ -6,8 +6,8 @@ import time
 import mytoken, units_of_measurement
 
 period=180# время между опросами сервера
-wdog1070=200 # минимальный хешрейт
-wdog1060=90
+wdog5700=140 # минимальный хешрейт
+wdog1080=80
 
 def hashrate():
 
@@ -25,7 +25,7 @@ def hashrate():
         for i in range(5):
             response = requests.get(url, headers=headers)
             print(response)
-            if response.status_code <300:
+            if response.status_code < 300:
                 json = response.json()['hashrates']# распложение Нужных данных в Json формате
                 j = 0
 
@@ -59,7 +59,7 @@ def save_onlineminer():
 def save_rigsminer():
     return rigsminer
 
-def reboot1070():
+def reboot5700():
     url_comands=('https://core-api.mineros.info/api/commands')
     payload={'cmd': "shutdown -r now", 'tokens': ["bpgZwXxaao9kCDqRBooKV6b8NdNT1S5p"]}
     headers={'authority': 'core-api.mineros.info',
@@ -73,7 +73,7 @@ def reboot1070():
         log.write('reboot1070'+ str(datetime.datetime.now()) + 'status code=  ' + str(response.status_code))
 
 
-def reboot1060():
+def reboot1080():
     url_comands=('https://core-api.mineros.info/api/commands')
     payload={'cmd': "shutdown -r now", 'tokens': ["AuyD2kofcNULHLLnVtRS9ZsXbqMViSyh"]}
     headers={'authority': 'core-api.mineros.info',
