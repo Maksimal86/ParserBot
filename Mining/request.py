@@ -6,11 +6,12 @@ import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import What_to_mine,hashrateno, mineros, Hive, binance, armtek, monitoring_price_changes_minings_coins, timer
+import What_to_mine,hashrateno, mineros, Hive, binance, armtek,\
+    monitoring_price_changes_minings_coins, timer, monitoring_the_number_of_rings_rplant as rplant
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-quantity_rigs = 2
+quantity_rigs = 4
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -31,17 +32,16 @@ async def send_message(message, state):
     but.add(btn1, btn2, btn3, btn4, btn5, btn6)
     print(message.text.lower(), message)
     if message.text.lower() == 'хешрейт':
-        if Hive.get_hive_hashrate() == False:
-            await need_send_kod(message, state)
-        else:
-            await bot.send_message(message.from_user.id, Hive.get_hive_hashrate(), reply_markup=but)
+        hashrate = rplant.monitoring_of_mining()
+        await bot.send_message(message.from_user.id, 'мгновенный хешрейт - '+ hashrate[1]
+                                + '\n средний хешрейт - ' + hashrate[2], reply_markup=but)
     elif message.text.lower() == 'старт':
         await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
         print('старт')
         global course_change_observer
         course_change_observer = True
         await asyncio.gather(monitoring_of_armtek_delivery(message),
-                             monitoring_price_changes(message))
+                             monitoring_price_changes(message),monitoring_number_of_rigs(message))
     elif message.text.lower() == 'стоп':
         course_change_observer = False
         print(course_change_observer)
@@ -73,22 +73,20 @@ async def send_message(message, state):
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
-async def monitoring_number_of_rigs(message, state):
+async def monitoring_number_of_rigs(message):
     while course_change_observer:
         # await check_hive_work(message, state)
         print('monitoring_number_of_rigs run', course_change_observer)
-        quantity_rigs_online = Hive.get_quantity_of_rig_online()
-        if quantity_rigs_online == False:
-            await need_send_kod(message, state)
-        elif  quantity_rigs_online < quantity_rigs:
+        quantity_rigs_online = rplant.monitoring_of_mining()[0]
+        if quantity_rigs_online < quantity_rigs:
             await asyncio.sleep(0.3)
-            await bot.send_message(message.from_user.id, text='Hive rig offline, online rigs = ' + str(
-                Hive.get_quantity_of_rig_online()))
+            await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
+                                                                                quantity_rigs_online))
             await asyncio.sleep(0.5)
             mineros.period = 30
             with open('log.txt', 'a') as log:
-                log.write('Hive' + str(datetime.datetime.now()) + 'rig offline' +
-                          str(Hive.get_quantity_of_rig_online()) + '\n')
+                log.write( str(datetime.datetime.now()) + 'rig offline' +
+                          str(quantity_rigs_online) + '\n')
         elif quantity_rigs_online == quantity_rigs:
             mineros.period = 180
         await asyncio.sleep(mineros.period)
@@ -153,49 +151,49 @@ async def monitoring_of_armtek_delivery(message):
             print("armtek_monitor() False")
 
 
-class GoogleKodAuthenticator(StatesGroup):
-    """
-    Класс для хранения состояний
-    Для получения кода аутентификатора
-    """
-    waiting_kod = State()
+# class GoogleKodAuthenticator(StatesGroup):
+#     """
+#     Класс для хранения состояний
+#     Для получения кода аутентификатора
+#     """
+#     waiting_kod = State()
+#
+
+# async def need_send_kod(message: types.Message, state: FSMContext):
+#     """
+#  Для получения кода аутентификатора
+#   запускается, несмотря на фильтры, потому что функция запускается отдельным вызовом, минуя фильтры.
+#     """
+#     print('run kod')
+#     await message.answer('Нужен код')
+#     # устанавливаем  в состояние waiting kod
+#     await GoogleKodAuthenticator.waiting_kod.set()
 
 
-async def need_send_kod(message: types.Message, state: FSMContext):
-    """
- Для получения кода аутентификатора
-  запускается, несмотря на фильтры, потому что функция запускается отдельным вызовом, минуя фильтры.
-    """
-    print('run kod')
-    await message.answer('Нужен код')
-    # устанавливаем  в состояние waiting kod
-    await GoogleKodAuthenticator.waiting_kod.set()
+# # если убрать state=Google_kod.waiting_kod, то get_cod() не обработает state
+# @dp.message_handler(content_types=['text'],state=GoogleKodAuthenticator.waiting_kod)
+# async def get_kod_of_authenticator(message: types.Message, state: FSMContext):
+#     print('run get_kod_of_authenticator()')
+#     await state.update_data(G_kod=message.text)
+#     # получаем сохраненные данные из хранилища
+#     user_data = await state.get_data('G_kod')
+#     print('user_data', user_data)
+#     # получаем доступ к state как к словарю
+#     async with state.proxy() as data:
+#         Hive.hive_get_kod_of_authenticator(data['G_kod'])
+#     await state.finish()
+#     await bot.send_message(message.from_user.id,text=Hive.get_hive_hashrate())
 
 
-# если убрать state=Google_kod.waiting_kod, то get_cod() не обработает state
-@dp.message_handler(content_types=['text'],state=GoogleKodAuthenticator.waiting_kod)
-async def get_kod_of_authenticator(message: types.Message, state: FSMContext):
-    print('run get_kod_of_authenticator()')
-    await state.update_data(G_kod=message.text)
-    # получаем сохраненные данные из хранилища
-    user_data = await state.get_data('G_kod')
-    print('user_data', user_data)
-    # получаем доступ к state как к словарю
-    async with state.proxy() as data:
-        Hive.hive_get_kod_of_authenticator(data['G_kod'])
-    await state.finish()
-    await bot.send_message(message.from_user.id,text=Hive.get_hive_hashrate())
-
-
-async def check_hive_work(message, state: FSMContext):
-    """
-    Для получения кода аутентификатора()
-    """
-    print('run check_hive_work()')
-    with open('hive_work.txt', 'r') as file:
-       read= file.read()
-    if read == 'False':
-        await need_send_kod(message, state)
+# async def check_hive_work(message, state: FSMContext):
+#     """
+#     Для получения кода аутентификатора()
+#     """
+#     print('run check_hive_work()')
+#     with open('hive_work.txt', 'r') as file:
+#        read= file.read()
+#     if read == 'False':
+#         await need_send_kod(message, state)
 try:
     executor.start_polling(dp)
 except:
