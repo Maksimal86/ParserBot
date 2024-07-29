@@ -13,7 +13,7 @@ def get_soup():
 
 def get_cource_usd_rub():
     for i in get_soup().select('main',class_='home-content'):
-        return i.find(class_='col-md-2 col-xs-9 _dollar').next_sibling.next_sibling.text
+        return i.find(class_="col-md-2 col-xs-9 _dollar").next_sibling.next_sibling.text
 
 
 def get_url():
@@ -26,6 +26,7 @@ def get_url():
 
 def main():
     cource = str(get_cource_usd_rub())
+    print(cource)
     return 'Курс ЦБ USD $ ' + cource.rstrip()[:-1] + 'руб.'
 
 
