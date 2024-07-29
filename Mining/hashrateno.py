@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-import time, datetime
+import time, re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+import requests, lxml
+from bs4 import BeautifulSoup
 
 
 class Browser():
@@ -27,49 +29,52 @@ class Browser():
         options.add_experimental_option('prefs', prefs)  # не загружаем картинки
         return options
 
-    def start_selenium_browser(self):
-        self.options = Browser.set_options_selenium(self)
-        self.driver = webdriver.Chrome(options=self.options, service=self.s)
-
     def selenium_driver_close(self):
         self.driver.close()
 
     def selenium_driver_quit(self):
         self.driver.quit()
 
-    def get_driver_url(self, card_name):
+    def get_BeautifulSoup(self, card_name):
         url = f'https://www.hashrate.no/gpus/{card_name}'
         self.driver.get(url)
+        page_source = self.driver.page_source.encode('cp1251', errors='ignore').decode('cp1251')
+        with open('rplant.html', 'w') as file:
+            file.write(page_source)
+        soup = BeautifulSoup(page_source,'lxml')
+        return soup
 
     def exclude_nice_hash(self):
         time.sleep(1)
         self.driver.find_element(By.XPATH,
-                                 '/html/body/div/div[2]/div[5]/div[2]/div[2]/div[3]/div[2]/form[2]/div[3]/div[2]/div/input[1]').click()
+                                 '/html/body/div/div[2]/div[5]/div[2]/div[2]/div[3]/div[2]/form[2]/div[3]/div[2]/div/'
+                                 'input[1]').click()
 
-    def get_main_teg(self):
-        main_teg = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[5]/div[2]/div[2]/div[3]/div[4]')
+    def get_main_tag(self):
+        main_teg = self.get_BeautifulSoup('5700').find('ul', attrs={"id": "myUL"})
         return main_teg
 
+
     def get_list_of_names_coins(self):
-        list_of_names_coins = []
-        web_element_coins_names = Browser.get_main_teg(self).find_elements(By.CLASS_NAME, 'deviceHeader2')
-        for i in web_element_coins_names:
-            list_of_names_coins.append(i)
+        list_of_names_coins=[]
+        web_element_of_names_coins = Browser.get_main_tag(self).find_all(class_='overlay')
+        for i in web_element_of_names_coins:
+            list_of_names_coins.append(re.search('\S*', i.text)[0])
         return list_of_names_coins
+
 
     def get_list_of_coins_profit(self):
         list_of_coins_profit = []
-        web_element_coins_profit = Browser.get_main_teg(self)\
-            .find_elements(By.CSS_SELECTOR, 'table')
-        # '#myUL > li:nth-child(1) > div > div > div > div > div.w3-col.l9.m12.s12 > div:nth-child(2) > div:nth-child(2) > div > center > table > tbody > tr:nth-child(3) > td'
+        web_element_coins_profit = Browser.get_main_tag(self).find_all(class_='w3-row inner')
         for i in web_element_coins_profit:
-            list_of_coins_profit.append(i)
+            teg = i.find_all(class_ ='w3-col l3 m3 s3 deviceData')[2].find('tr').find('td').text
+            list_of_coins_profit.append(teg.strip(('$')))
         return list_of_coins_profit
 
     def get_dict_with_data(self):
         dict_with_data = {}
         for i, j in zip(self.get_list_of_names_coins(), self.get_list_of_coins_profit()):
-            dict_with_data[i.text] = j.text.strip(('$'))
+            dict_with_data[i] = j
         return dict_with_data
 
     def get_sorting_dict(self):
@@ -82,15 +87,13 @@ class Browser():
 
 
 def main_function():
-    cards = ['1080', '5600XT', '5700']
+    cards = ['1080','5600xt','5700']
     data_of_coins = Browser()
     for i in cards:
-        data_of_coins.get_driver_url(i)
+        data_of_coins.get_BeautifulSoup(i)
         data_of_coins.exclude_nice_hash()
         yield data_of_coins.converting_to_string_format(i)
     data_of_coins.selenium_driver_close()
-
-
 
 
 if __name__ == '__main__':
