@@ -11,7 +11,7 @@ import What_to_mine,hashrateno, mineros, Hive, binance, armtek,\
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-quantity_rigs = 4
+quantity_rigs = 5
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -77,11 +77,13 @@ async def monitoring_number_of_rigs(message):
     while course_change_observer:
         # await check_hive_work(message, state)
         print('monitoring_number_of_rigs run', course_change_observer)
-        quantity_rigs_online = rplant.monitoring_of_mining()[0]
+        result_monitoring_number_of_rigs_rplant = rplant.monitoring_of_mining()
+        quantity_rigs_online = result_monitoring_number_of_rigs_rplant[0]
+        hashrate_of_rigs = result_monitoring_number_of_rigs_rplant[3]
         if quantity_rigs_online < quantity_rigs:
             await asyncio.sleep(0.3)
             await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
-                                                                                quantity_rigs_online))
+                                                                    quantity_rigs_online)+'\n' + hashrate_of_rigs )
             await asyncio.sleep(0.5)
             mineros.period = 30
             with open('log.txt', 'a') as log:
