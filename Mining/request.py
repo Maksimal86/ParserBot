@@ -11,7 +11,7 @@ import What_to_mine,hashrateno, mineros, Hive, binance, armtek,\
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-quantity_rigs = 5
+quantity_rigs = 4
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -122,27 +122,31 @@ async def monitoring_price_changes(message):
 
 
 async def get_data_from_armtek_and_send_message(message):
-    pause = 6000
+    # pause = 60
     armtek_list = armtek.main()
     print('armtek_list', armtek_list)
     if not armtek_list:
         await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
     else:
+        counter = 0
         for i in armtek_list:
-            if i == '' and i == len(armtek_list):
+            counter += 1
+            if i == '' and counter == len(armtek_list):
                 await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
             elif i == '':
                 continue
             else:
                 await bot.send_message(message.from_user.id, i)
-    await asyncio.sleep(pause)
+    # await asyncio.sleep(pause)
 
 
 async def monitoring_of_armtek_delivery(message):
-    time_start_1 = '19:30'
-    time_start_2 = '00:30'
+    pause = 1
+    time_start_1 = '20:50'
+    time_start_2 = '23:30'
     time_start_3 = '08:45'
     while True:
+        await asyncio.sleep(pause)
         if  await timer.timer(time_start_1 + ':00'):
             await get_data_from_armtek_and_send_message(message)
         elif await timer.timer(time_start_2 + ':00'):

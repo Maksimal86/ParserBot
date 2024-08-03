@@ -21,7 +21,7 @@ def options_add():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    # options.add_argument("--headless")  # скрытый запуск браузера
+    options.add_argument("--headless")  # скрытый запуск браузера
     options.add_argument('--no-sandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
@@ -317,9 +317,7 @@ def get_data_from_5_to_11(driver):
                         break
             else:
                 continue
-
             check_and_add_no_delivery(list_of_delivery)
-
             print(list_of_delivery)
             return list_of_delivery
     except IndexError:
@@ -329,7 +327,7 @@ def get_data_from_5_to_11(driver):
 
 
 def get_data_from_11_to_05(driver):
-    print('run get_data_from_11_to_24() ')
+    print('run get_data_from_11_to_05() ')
     list_of_delivery = get_data_about_upcomming_delivery(driver)
     check_and_add_no_delivery(list_of_delivery)
     write_of_cookies_in_file(driver)
