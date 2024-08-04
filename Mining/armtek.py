@@ -296,14 +296,14 @@ def write_of_cookies_in_file(driver):
 def get_data_from_5_to_11(driver):
     print('run get_data_from_5_to_11')
     write_of_cookies_in_file(driver)
-    list_of_delivery=[]
+    list_of_delivery = []
     try:
         set_data_and_click_on_get_button(driver)
         # парсим 15 строк в заказах
-        for i in range(1,15): # исправить на "1"
-            if check_delivery_date(driver, i) == True:
-                print('str 307 i = ',i)
-                print(check_delivery_date(driver,i))
+        for i in range(1,15):
+            if check_delivery_date(driver, i):
+                print('str 307 i = ', i)
+                print(check_delivery_date(driver, i))
                 driver.get(get_link_of_factura(driver, i))
                 list_of_delivery.append(get_information_about_refusals(driver,i))
                 # парсим 20 строк в фактуре
@@ -346,7 +346,7 @@ def main():
             log_in_armtek(driver)
             time.sleep(3)
             if check_right_page(driver) == False:
-                return   ['Не вошли в Армтек']
+                return ['Не вошли в Армтек']
         return select_desired_function(driver)
     except:
         driver.close()

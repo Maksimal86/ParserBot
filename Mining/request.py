@@ -51,26 +51,14 @@ async def send_message(message, state):
         for i in What_to_mine.get_profit_of_coins():
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
-        armtek_list = armtek.main()
-        print('armtek_list from request', armtek_list)
-        if not armtek_list:
-            await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
-        else:
-            counter = 0
-            for i in armtek_list:
-                counter += 1
-                if i == '' and counter == len(armtek_list):
-                    await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
-                elif i == '':
-                    continue
-                else:
-                    await bot.send_message(message.from_user.id, i)
+       await get_data_from_armtek_and_send_message(message)
     elif message.text.lower() == 'курсы валют':
         for i in binance.get_cource_from_binance():
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
             await  bot.send_message(message.from_user.id, text=i)
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
+
 
 
 async def monitoring_number_of_rigs(message):
@@ -122,37 +110,36 @@ async def monitoring_price_changes(message):
 
 
 async def get_data_from_armtek_and_send_message(message):
-    # pause = 60
     armtek_list = armtek.main()
     print('armtek_list', armtek_list)
     if not armtek_list:
         await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
     else:
         counter = 0
+        empty_str = 0
         for i in armtek_list:
             counter += 1
-            if i == '' and counter == len(armtek_list):
+            if i == '' and counter == len(armtek_list) and empty_str == 0:
                 await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
             elif i == '':
                 continue
             else:
+                empty_str += 1
                 await bot.send_message(message.from_user.id, i)
-    # await asyncio.sleep(pause)
+
 
 
 async def monitoring_of_armtek_delivery(message):
     pause = 1
-    time_start_1 = '20:50'
+    time_start_1 = '20:40'
     time_start_2 = '23:30'
     time_start_3 = '08:45'
+    time_start = [time_start_3, time_start_2, time_start_1]
     while True:
-        await asyncio.sleep(pause)
-        if  await timer.timer(time_start_1 + ':00'):
-            await get_data_from_armtek_and_send_message(message)
-        elif await timer.timer(time_start_2 + ':00'):
-            await get_data_from_armtek_and_send_message(message)
-        elif await timer.timer(time_start_3 + ':00'):
-            await get_data_from_armtek_and_send_message(message)
+        # await asyncio.sleep(pause)
+        for i in time_start:
+            if await timer.timer(i + ':00'):
+                await get_data_from_armtek_and_send_message(message)
         else:
             print("armtek_monitor() False")
 
