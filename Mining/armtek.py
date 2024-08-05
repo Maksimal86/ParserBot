@@ -306,8 +306,8 @@ def get_data_from_5_to_11(driver):
                 print(check_delivery_date(driver, i))
                 driver.get(get_link_of_factura(driver, i))
                 list_of_delivery.append(get_information_about_refusals(driver,i))
-                # парсим 20 строк в фактуре
-                for i in range(1, 20):
+                # парсим 30 строк в фактуре
+                for i in range(1, 30):
                     time.sleep(5)
                     try:
                         spare_parts = get_list_of_spare_parts_by_factura(driver, i)
