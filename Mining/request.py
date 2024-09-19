@@ -40,8 +40,8 @@ async def send_message(message, state):
         print('старт')
         global course_change_observer
         course_change_observer = True
-        await asyncio.gather(monitoring_of_armtek_delivery(message),
-                             monitoring_price_changes(message),monitoring_number_of_rigs(message))
+        await asyncio.gather(monitoring_price_changes(message),monitoring_number_of_rigs(message),
+                             monitoring_of_armtek_delivery(message))
     elif message.text.lower() == 'стоп':
         course_change_observer = False
         print(course_change_observer)

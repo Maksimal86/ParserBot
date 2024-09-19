@@ -75,7 +75,7 @@ def sr_hashrate(driver):
 
 
 def get_table_with_names_and_hashrate(driver):
-    return driver.find_element(By.CSS_SELECTOR, '.box-bottom.uk-align-left').find_element(By.CSS_SELECTOR, '.uk-table.uk-table-striped.uk-table-condensed').find_element\
+    return driver.find_element(By.CSS_SELECTOR, '#boxesWorkers').find_element\
         (By.CSS_SELECTOR, 'tbody').find_elements(By.CSS_SELECTOR, 'tr')
 
 
