@@ -12,6 +12,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 quantity_rigs = 4
+
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ async def send_message(message, state):
     btn5 = types.KeyboardButton('Армтек')
     btn6 = types.KeyboardButton('курсы валют')
     but.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    global course_change_observer
+    course_change_observer = False
     print(message.text.lower(), message)
     if message.text.lower() == 'хешрейт':
         hashrate = rplant.monitoring_of_mining()
@@ -38,13 +41,12 @@ async def send_message(message, state):
     elif message.text.lower() == 'старт':
         await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
         print('старт')
-        global course_change_observer
-        course_change_observer = True
-        await asyncio.gather(monitoring_price_changes(message),monitoring_number_of_rigs(message),
+        if not course_change_observer:
+            course_change_observer = True
+            await asyncio.gather(monitoring_price_changes(message), monitoring_number_of_rigs(message),
                              monitoring_of_armtek_delivery(message))
     elif message.text.lower() == 'стоп':
         course_change_observer = False
-        print(course_change_observer)
     elif message.text.lower() == 'профит':
         for j in hashrateno.main_function():
             await bot.send_message(message.from_user.id, str(j).translate({ord(i):None for i in "[]'" }))
@@ -58,7 +60,6 @@ async def send_message(message, state):
         for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
             await  bot.send_message(message.from_user.id, text=i)
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
-
 
 
 async def monitoring_number_of_rigs(message):
@@ -128,9 +129,8 @@ async def get_data_from_armtek_and_send_message(message):
                 await bot.send_message(message.from_user.id, i)
 
 
-
 async def monitoring_of_armtek_delivery(message):
-    pause = 1
+
     time_start_1 = '20:40'
     time_start_2 = '23:30'
     time_start_3 = '08:45'
