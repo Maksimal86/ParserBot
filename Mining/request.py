@@ -62,10 +62,19 @@ async def send_message(message, state):
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
+async def get_message_about_rigs(message):
+    driver = rplant.get_driver_selenium()
+    driver.get(rplant.get_rplant_url())
+    rplant.find_wallet(driver)
+    table_of_hashrate = rplant.hashrate_of_rigs(driver)
+    await bot.send_message(message.from_user.id, text=table_of_hashrate)
+
+
 async def monitoring_number_of_rigs(message):
     while course_change_observer:
         # await check_hive_work(message, state)
         print('monitoring_number_of_rigs run', course_change_observer)
+        await get_message_about_rigs(message)
         result_monitoring_number_of_rigs_rplant = rplant.monitoring_of_mining()
         quantity_rigs_online = result_monitoring_number_of_rigs_rplant[0]
         hashrate_of_rigs = result_monitoring_number_of_rigs_rplant[3]
