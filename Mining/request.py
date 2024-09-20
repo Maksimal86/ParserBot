@@ -74,7 +74,6 @@ async def monitoring_number_of_rigs(message):
     while course_change_observer:
         # await check_hive_work(message, state)
         print('monitoring_number_of_rigs run', course_change_observer)
-        await get_message_about_rigs(message)
         result_monitoring_number_of_rigs_rplant = rplant.monitoring_of_mining()
         quantity_rigs_online = result_monitoring_number_of_rigs_rplant[0]
         hashrate_of_rigs = result_monitoring_number_of_rigs_rplant[3]
@@ -96,6 +95,7 @@ async def monitoring_price_changes(message):
     # try:
         while course_change_observer:
             print('binance run', course_change_observer)
+            await get_message_about_rigs(message)
             for i in binance.get_cource_from_binance():
                 try:
                     print(i,(i[2][:-1]), float(i[2][:-1]))
