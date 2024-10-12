@@ -6,7 +6,7 @@ import mytoken, USD_RUB
 import logging
 import datetime
 from aiogram import Bot, Dispatcher, executor, types
-import What_to_mine, hashrateno, mineros, Hive, binance, armtek, \
+import What_to_mine, hashrateno, mineros, Hive, eth_btc, armtek, \
     monitoring_price_changes_minings_coins, timer, monitoring_the_number_of_rings_rplant as rplant
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -43,7 +43,6 @@ async def send_message(message, state):
     elif message.text.lower() == 'старт':
         await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
         print('course_change_observer =', course_change_observer)
-
         if not course_change_observer and counter() == 1:
             course_change_observer = True
             await asyncio.gather(monitoring_price_changes(message), monitoring_number_of_rigs(message),
@@ -74,7 +73,10 @@ async def get_message_about_rigs(message):
     driver.get(rplant.get_rplant_url())
     rplant.find_wallet(driver)
     table_of_hashrate = rplant.hashrate_of_rigs(driver)
-    await bot.send_message(message.from_user.id, text=table_of_hashrate)
+    await bot.send_message(message.from_user.id, text=table_of_hashrate + 'Норма \n 5600/10 = 200Мh/s \n'
+                                                                          '5600/12 = 240Mh/s \n'
+                                                                          '5700 = 143Mh/s \n '
+                                                                          '1080 = 70Mh/s' )
 
 
 async def monitoring_number_of_rigs(message):
@@ -101,16 +103,9 @@ async def monitoring_number_of_rigs(message):
 async def monitoring_price_changes(message):
 
     while course_change_observer:
-        print('binance run', course_change_observer)
-
         await get_message_about_rigs(message)
-        for i in binance.get_cource_from_binance():
-            try:
-                print(i, (i[2][:-1]), float(i[2][:-1]))
-                if float(i[2][:-1]) > 5 or float(i[2][:-1]) < -5:
-                    await bot.send_message(message.from_user.id, text="Изменение больше 5% " + str(i))
-            except:
-                continue
+        for i in eth_btc.get_cource():
+            await bot.send_message(message.from_user.id, text=str(i))
         for i in monitoring_price_changes_minings_coins.hashrateno_get_coin_price():
             print(i)
             if i[3] == 'N/':
@@ -162,19 +157,20 @@ async def get_data_from_armtek_and_send_message(message):
 
 
 async def monitoring_of_armtek_delivery(message):
-    time_start_1 = '20:40'
+    time_start_1 = '19:00'
     time_start_2 = '23:30'
     time_start_3 = '08:45'
     time_start = [time_start_3, time_start_2, time_start_1]
     while True:
-        # await asyncio.sleep(pause)
+        await asyncio.sleep(1)
         for i in time_start:
             if await timer.timer(i + ':00'):
                 await get_data_from_armtek_and_send_message(message)
         else:
             print("armtek_monitor() False")
-
-
+#
+# timer return False19:00:00 07:11:09 190000 71109
+# armtek_monitor() False
 # class GoogleKodAuthenticator(StatesGroup):
 #     """
 #     Класс для хранения состояний
