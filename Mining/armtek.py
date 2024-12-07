@@ -104,7 +104,7 @@ def get_date_of_delivery(driver,i):   # дата поставки из табл�
 
 
 def get_link_of_factura(driver, i):
-    return driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]/div/a').get_attribute('href') # ссылка на фактуру
+    return driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]/div/a').get_attribute('href') # ссылка на фактуру
 
 
 def get_times_objects():

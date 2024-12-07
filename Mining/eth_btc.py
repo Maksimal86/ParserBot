@@ -9,7 +9,7 @@ def get_json():
 
 def get_cource():
     json = get_json()
-    for i in range(20):
+    for i in range(19):
         name = json['shared_key_indicators_under_topline'][i]['item']['name']
         change = json['shared_key_indicators_under_topline'][i]['item']['change']
         closevalue = json['shared_key_indicators_under_topline'][i]['item']['closevalue']

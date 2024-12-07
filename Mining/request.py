@@ -12,7 +12,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-quantity_rigs = 4
+
 
 # создали хранилище памяти
 storage = MemoryStorage()
@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 bot = Bot(mytoken.tokenbot)
 #  передали экземпляру класса диспетчера бота и хранилище
 dp = Dispatcher(bot, storage=storage)
-
 
 @dp.message_handler(content_types=['text'])
 async def send_message(message, state):
@@ -45,8 +44,7 @@ async def send_message(message, state):
         print('course_change_observer =', course_change_observer)
         if not course_change_observer and counter() == 1:
             course_change_observer = True
-            await asyncio.gather(monitoring_price_changes(message), monitoring_number_of_rigs(message),
-                                 monitoring_of_armtek_delivery(message))
+            await monitoring_of_armtek_delivery(message)
         else:
             print('еще раз нажали "старт" ')
     elif message.text.lower() == 'стоп':
@@ -59,73 +57,24 @@ async def send_message(message, state):
     elif message.text.lower() == 'армтек':
         await get_data_from_armtek_and_send_message(message)
     elif message.text.lower() == 'курсы валют':
-        for i in binance.get_cource_from_binance():
+        for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
-            await  bot.send_message(message.from_user.id, text=i)
+            await bot.send_message(message.from_user.id, text=i)
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
 
 
-async def get_message_about_rigs(message):
-    driver = rplant.get_driver_selenium()
-    driver.get(rplant.get_rplant_url())
-    rplant.find_wallet(driver)
-    table_of_hashrate = rplant.hashrate_of_rigs(driver)
-    await bot.send_message(message.from_user.id, text=table_of_hashrate + 'Норма \n 5600/10 = 200Мh/s \n'
-                                                                          '5600/12 = 240Mh/s \n'
-                                                                          '5700 = 143Mh/s \n '
-                                                                          '1080 = 70Mh/s' )
-
-
-async def monitoring_number_of_rigs(message):
-    while course_change_observer:
-        # await check_hive_work(message, state)
-        print('monitoring_number_of_rigs run', course_change_observer)
-        result_monitoring_number_of_rigs_rplant = rplant.monitoring_of_mining()
-        quantity_rigs_online = result_monitoring_number_of_rigs_rplant[0]
-        hashrate_of_rigs = result_monitoring_number_of_rigs_rplant[3]
-        if quantity_rigs_online < quantity_rigs:
-            await asyncio.sleep(0.3)
-            await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
-                quantity_rigs_online) + '\n' + hashrate_of_rigs)
-            await asyncio.sleep(0.5)
-            mineros.period = 30
-            with open('log.txt', 'a') as log:
-                log.write(str(datetime.datetime.now()) + 'rig offline' +
-                          str(quantity_rigs_online) + '\n')
-        elif quantity_rigs_online == quantity_rigs:
-            mineros.period = 180
-        await asyncio.sleep(mineros.period)
-
-
-async def monitoring_price_changes(message):
-
-    while course_change_observer:
-        await get_message_about_rigs(message)
-        for i in eth_btc.get_cource():
-            await bot.send_message(message.from_user.id, text=str(i))
-        for i in monitoring_price_changes_minings_coins.hashrateno_get_coin_price():
-            print(i)
-            if i[3] == 'N/':
-                await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
-            elif float(i[3]) > 15 or float(i[3]) < -15:
-                await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
-                                       translate({ord(i): None for i in '()'}) + '% за 24 часа')
-        cource_rub_usd = USD_RUB.main()
-        await bot.send_message(message.from_user.id, text=cource_rub_usd)
-        print(cource_rub_usd)
-        await asyncio.sleep(3600 * 3)
 
 
 def count_calls():
     '''Счетчик нажатий кнопки "старт"'''
+
     counter = 0
-    def closure(print_result=False):
+
+    def closure():
         nonlocal counter
-        if print_result:
-            return counter
         counter += 1
         return counter
     return closure
@@ -159,10 +108,10 @@ async def get_data_from_armtek_and_send_message(message):
 async def monitoring_of_armtek_delivery(message):
     time_start_1 = '19:00'
     time_start_2 = '23:30'
-    time_start_3 = '08:45'
+    time_start_3 = '08:44'
     time_start = [time_start_3, time_start_2, time_start_1]
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(60)
         for i in time_start:
             if await timer.timer(i + ':00'):
                 await get_data_from_armtek_and_send_message(message)
@@ -219,5 +168,5 @@ try:
 except:
     with open('log.txt', 'a', encoding='utf-8') as log:
         log.write('start_polling ' + str(datetime.datetime.now()) + ' нет соединения ' + str(sys.exc_info()) + '\n')
-    time.sleep(2)
-    executor.start_polling(dp, skip_updates=True)
+
+    # executor.start_polling(dp, skip_updates=True)

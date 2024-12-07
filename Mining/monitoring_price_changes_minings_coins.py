@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
-import sys, requests, lxml
+import requests
 import traceback
-
 from bs4 import BeautifulSoup
-
-
-def hashrateno_get_coin_price():
-    return getting_coin_attrbutes()
 
 
 def get_url():
@@ -17,38 +12,48 @@ def get_url():
 
 def get_soup():
     responce = requests.get(get_url())
-    soup = BeautifulSoup(responce.text, 'lxml')
+    texthtmlpage = BeautifulSoup(responce.content, 'lxml')
+    soup = BeautifulSoup(texthtmlpage.encode('cp1251', errors='replace').decode('cp1251'), 'lxml')
     return soup
 
 
 def getting_main_tag():
-    list_main_teg = get_soup().findAll('div', class_='block deviceLink')
-    return list_main_teg
+    main_teg = get_soup().findAll('div', class_="w3-row")[9] # 9 - искомый div
+    return main_teg
+
+
+def get_all_blocks_of_coins():
+    return getting_main_tag().find('ul', id='myUL').find_all('li')
 
 
 def get_coin_name(i):
-    return i.find('span',class_="deviceHeader2").text
+    return i.find('div',style="display: none;").text
 
 
 def get_coin_price(i):
-    return i.findAll('table')[1].find('td', class_='deviceHeader2').next_sibling.text
+    return i.findAll('table')[0].findAll('td')[1].text
 
 
 def get_coins_delta_price_hour(i):
-    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[1].text+ ' за 1 час'
+    return i.findAll('tr')[1].find('td').text #за 1 час'
 
 
 def get_coins_delta_price_day(i):
-    return i.findAll('table')[1].findAll('td', class_='coinsInfo')[3].text
+    return i.find('td', class_='infoChange').next_sibling.text
 
 
-def getting_coin_attrbutes():
-    for i in getting_main_tag():
-        try:
-            yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
-        except:
-            traceback.print_exc()
-            continue
+def getting_coin_attributes():
+    try:
+        j = 0
+        for i in get_all_blocks_of_coins():
+            j += 1
+            try:
+                yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
+            except IndexError:
+                continue
+    except:
+        traceback.print_exc()
+
 
 if __name__ == '__main__':
-    hashrateno_get_coin_price()
+    getting_coin_attributes()

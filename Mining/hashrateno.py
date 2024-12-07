@@ -67,7 +67,7 @@ class Browser():
         list_of_coins_profit = []
         web_element_coins_profit = Browser.get_main_tag(self).find_all(class_='w3-row inner')
         for i in web_element_coins_profit:
-            teg = i.find_all(class_ ='w3-col l3 m3 s3 deviceData')[2].find('tr').find('td').text
+            teg = i.find_all(class_='w3-col l3 m3 s3 deviceData')[2].find('tr').find('td').text
             list_of_coins_profit.append(teg.strip(('$')))
         return list_of_coins_profit
 
