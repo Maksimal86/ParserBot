@@ -31,15 +31,15 @@ def get_coin_name(i):
 
 
 def get_coin_price(i):
-    return i.findAll('table')[0].findAll('td')[1].text
+    return i.findAll('table')[1].findAll('td')[1].text
 
 
 def get_coins_delta_price_hour(i):
-    return i.findAll('tr')[1].find('td').text #за 1 час'
+    return i.findAll('table')[2].find('td').text+' за 1 час'
 
 
 def get_coins_delta_price_day(i):
-    return i.find('td', class_='infoChange').next_sibling.text
+    return i.findAll('table')[2].findAll('td')[1].text+' за 1 день '
 
 
 def getting_coin_attributes():

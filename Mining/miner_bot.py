@@ -17,7 +17,8 @@ async def send_message(message, state):
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('старт')
     btn2 = types.KeyboardButton('Стоп')
-    but.add(btn1, btn2)
+    btn3 = types.KeyboardButton('Курсы')
+    but.add(btn1, btn2, btn3)
     global course_change_observer
     course_change_observer = False
     if message.text.lower() == 'старт':
@@ -26,6 +27,12 @@ async def send_message(message, state):
         await asyncio.gather(monitoring_price_changes(message), monitoring_number_of_rigs(message))
     elif message.text.lower() == 'стоп':
         course_change_observer = False
+    elif message.text.lower() == 'курсы':
+        for i in eth_btc.get_cource():
+            await bot.send_message(message.from_user.id, i)
+        for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
+            await bot.send_message(message.from_user.id, text=i)
+        await bot.send_message(message.from_user.id, USD_RUB.main())
 
 
 async def monitoring_price_changes(message):

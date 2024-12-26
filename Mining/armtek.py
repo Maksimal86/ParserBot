@@ -131,6 +131,13 @@ def select_desired_function(driver):
         traceback.print_exc()
 
 
+# def select_desired_function(driver):
+#     '''
+#     Диагностическая функция для запуска какой-либо функции получения данных вне зависимости от времени
+#     '''
+#     return  get_data_from_11_to_05(driver)
+
+
 def get_list_of_spare_parts_by_factura(driver, i):
     return  driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]').text
 
@@ -144,19 +151,16 @@ def get_date_factura(driver,i):
         return ''
 
 
-def get_page_with_orders(driver):
-    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
-    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
-                                                                  (date.today() - datetime.timedelta(days=20)).strftime(
-                                                                      "%d.%m.%Y"), Keys.ENTER)
-
-
 def check_delivery_date(driver, i):
+    """
+    Выполняется проверка соответствия даты поставки и даты фактуры к текущей дате
+    в зависимости от того, какой функцией была вызвана проверка
+    """
     print("run check_delivery_date" )
     date_of_delivery = get_date_of_delivery(driver, i)
     try:
         print('inspect.stack()[1][3] =', inspect.stack()[1][3])
-        if inspect.stack()[1][3] == 'get_data_about_upcomming_delivery':
+        if inspect.stack()[1][3] == 'get_data_about_upcoming_delivery':
             if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == \
                     date_of_delivery and get_date_factura(driver, i) == '' or \
                     date.today().strftime("%d.%m.%Y") == date_of_delivery and get_date_factura(driver, i) == '':
@@ -178,6 +182,22 @@ def check_delivery_date(driver, i):
 
 
 def set_data_and_click_on_get_button(driver):
+    """
+    задаем дату, с которой выводится список заказов
+    и формируем этот список
+    """
+    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
+    driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
+                                                                  (date.today() - datetime.timedelta(days=20)).strftime(
+                                                                       "%d.%m.%Y"), Keys.ENTER)
+
+
+def get_page_with_orders(driver):
+    """
+    Получаем список заказов с нужной даты
+    :param driver:
+    :return: None
+    """
     driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
     driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * 10,
                                                                   (date.today() - datetime.timedelta(days=20)).strftime(
@@ -190,7 +210,7 @@ def get_date_of_order(driver, i):
 
 def check_date_of_order(driver, i):
     try:
-        if get_date_of_order(driver, i) == date.today().strftime("%d.%m.%Y"):
+        if get_date_of_order(driver, i) == date.today().strftime("%d.%m.%Y"): # Здесь можно поменять дату поставки для тестов
             return True
         else:
             return False
@@ -221,6 +241,11 @@ def get_information_about_refusals(driver, i):
 
 
 def check_and_add_no_delivery(list_of_delivery):
+    """
+    Проверяем наличие поставки, если спсок поставки пуст - вставляем в список выражение об этом
+    :param list_of_delivery:
+    :return: None
+    """
     if list_of_delivery == []:
         list_of_delivery.append('Пока поставка не сформирована')
         print('Поставок нет')
@@ -239,7 +264,12 @@ def log_in_click_button(driver):
 
 
 def get_data_about_upcomming_delivery(driver):
-    print('run get_data_about_upcomming_delivery ')
+    """
+    Собираем в единых список сумму по поставке и комментарий к ней
+    :param driver:
+    :return: список ЗЧ в поставке
+    """
+    print('run get_data_about_upcoming_delivery ')
     get_page_with_orders(driver)
     time.sleep(5)
     list_of_delivery = []
