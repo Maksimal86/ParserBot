@@ -31,7 +31,7 @@ async def send_message(message, state):
         for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
-            await bot.send_message(message.from_user.id, text=i)
+            await bot.send_message(message.from_user.id, text=i[0] + i[1] + i[2] + ' за 1 час, ' + i[3] + '%  за 24 часа')
         await bot.send_message(message.from_user.id, USD_RUB.main())
 
 
@@ -45,8 +45,8 @@ async def monitoring_price_changes(message):
             if i[3] == 'N/':
                 await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
             elif float(i[3]) > 15 or float(i[3]) < -15:
-                await bot.send_message(message.from_user.id, text="Изменение больше 15% " + str(i).
-                                       translate({ord(i): None for i in '()'}) + '% за 24 часа')
+                await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2].
+                                       translate({ord(i): None for i in '()'}) + ' за 1 час, ' + i[3] + '%  за 24 часа')
         cource_rub_usd = USD_RUB.main()
         await bot.send_message(message.from_user.id, text=cource_rub_usd)
         print(cource_rub_usd)
