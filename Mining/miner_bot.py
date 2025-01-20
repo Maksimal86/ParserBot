@@ -31,7 +31,7 @@ async def send_message(message, state):
         for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
-            await bot.send_message(message.from_user.id, text=i[0] + i[1] + i[2] + ' за 1 час, ' + i[3] + '%  за 24 часа')
+            await bot.send_message(message.from_user.id, text=i[0] + i[1] + '  ' + i[2] + ' за 1 час, ' + i[3] + '%  за 24 часа')
         await bot.send_message(message.from_user.id, USD_RUB.main())
 
 
