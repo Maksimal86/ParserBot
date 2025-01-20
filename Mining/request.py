@@ -24,13 +24,12 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(content_types=['text'])
 async def send_message(message, state):
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton('хешрейт')
+
     btn2 = types.KeyboardButton('Старт')
     btn3 = types.KeyboardButton('Стоп')
     btn4 = types.KeyboardButton('профит')
     btn5 = types.KeyboardButton('Армтек')
-    btn6 = types.KeyboardButton('курсы валют')
-    but.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    but.add( btn2, btn3, btn4, btn5)
     global course_change_observer
 
     course_change_observer = False
@@ -55,7 +54,7 @@ async def send_message(message, state):
         for i in What_to_mine.get_profit_of_coins():
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
-        await get_data_from_armtek_and_send_message(message)
+        await get_data_from_armtek_and_send_message(message, but)
     elif message.text.lower() == 'курсы валют':
         for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, i)
@@ -86,7 +85,7 @@ counter = count_calls()
 #         log.write('monitoring_price_changes '+str(datetime.datetime.now())+' '+str(sys.exc_info())+'\n')
 
 
-async def get_data_from_armtek_and_send_message(message):
+async def get_data_from_armtek_and_send_message(message, but):
     armtek_list = armtek.main()
     print('armtek_list', armtek_list)
     if not armtek_list:
@@ -97,12 +96,12 @@ async def get_data_from_armtek_and_send_message(message):
         for i in armtek_list:
             counter += 1
             if i == '' and counter == len(armtek_list) and empty_str == 0:
-                await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет')
+                await bot.send_message(message.from_user.id, 'Пока поставка не сформирована, отказов нет',reply_markup=but)
             elif i == '':
                 continue
             else:
                 empty_str += 1
-                await bot.send_message(message.from_user.id, i)
+                await bot.send_message(message.from_user.id, i,reply_markup=but)
 
 
 async def monitoring_of_armtek_delivery(message):
@@ -164,7 +163,7 @@ async def monitoring_of_armtek_delivery(message):
 #     if read == 'False':
 #         await need_send_kod(message, state)
 try:
-    executor.start_polling(dp)
+    executor.start_polling(dp,skip_updates=False)
 except:
     with open('log.txt', 'a', encoding='utf-8') as log:
         log.write('start_polling ' + str(datetime.datetime.now()) + ' нет соединения ' + str(sys.exc_info()) + '\n')
