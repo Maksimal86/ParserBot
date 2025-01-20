@@ -12,8 +12,6 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-
-
 # создали хранилище памяти
 storage = MemoryStorage()
 logger = logging.getLogger(__name__)
@@ -24,14 +22,12 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(content_types=['text'])
 async def send_message(message, state):
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
-
     btn2 = types.KeyboardButton('Старт')
     btn3 = types.KeyboardButton('Стоп')
     btn4 = types.KeyboardButton('профит')
     btn5 = types.KeyboardButton('Армтек')
     but.add( btn2, btn3, btn4, btn5)
     global course_change_observer
-
     course_change_observer = False
     print(message.text.lower(), message)
     if message.text.lower() == 'хешрейт':
@@ -43,7 +39,7 @@ async def send_message(message, state):
         print('course_change_observer =', course_change_observer)
         if not course_change_observer and counter() == 1:
             course_change_observer = True
-            await monitoring_of_armtek_delivery(message)
+            await monitoring_of_armtek_delivery(message, but)
         else:
             print('еще раз нажали "старт" ')
     elif message.text.lower() == 'стоп':
@@ -63,15 +59,9 @@ async def send_message(message, state):
         await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
-
-
-
-
 def count_calls():
     '''Счетчик нажатий кнопки "старт"'''
-
     counter = 0
-
     def closure():
         nonlocal counter
         counter += 1
@@ -80,9 +70,6 @@ def count_calls():
 
 
 counter = count_calls()
-# except:
-#     with open("log.txt", 'a') as log:
-#         log.write('monitoring_price_changes '+str(datetime.datetime.now())+' '+str(sys.exc_info())+'\n')
 
 
 async def get_data_from_armtek_and_send_message(message, but):
@@ -104,16 +91,17 @@ async def get_data_from_armtek_and_send_message(message, but):
                 await bot.send_message(message.from_user.id, i,reply_markup=but)
 
 
-async def monitoring_of_armtek_delivery(message):
+async def monitoring_of_armtek_delivery(message, but):
+    print('run monitoring_of_armtek_delivery')
     time_start_1 = '19:00'
-    time_start_2 = '23:30'
+    time_start_2 = '01:47'
     time_start_3 = '08:44'
     time_start = [time_start_3, time_start_2, time_start_1]
     while True:
         await asyncio.sleep(60)
         for i in time_start:
             if await timer.timer(i + ':00'):
-                await get_data_from_armtek_and_send_message(message)
+                await get_data_from_armtek_and_send_message(message, but)
         else:
             print("armtek_monitor() False")
 #
