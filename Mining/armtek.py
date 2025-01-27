@@ -1,7 +1,7 @@
     # -*- coding: utf-8 -*-
 
 from abc import ABC, abstractmethod
-import inspect
+from Selenium_Driver import set_options_of_selenium
 import time, datetime, sys
 import traceback
 from datetime import date
@@ -17,35 +17,13 @@ import mytoken
 
 class Basic(ABC):
     def __init__(self):
-        self.options = Basic.options_add()
+        self.options = set_options_of_selenium()
         self.service = Service(executable_path=r'C:/chromedriver.exe')
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         self.login = mytoken.loginarm
         self.password = mytoken.passwordarm
         self.url = 'https://etp.armtek.ru/order/report'
         self.number_of_lines = 25 # количество строк в документе, подлежащее сбору информации
-
-
-    @staticmethod
-    def options_add():
-        '''
-        добавляем опции для selenium
-        :return: options
-        '''
-        options = webdriver.ChromeOptions()
-        user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) + AppleWebKit/537.36 (KHTML, like Gecko) '
-            'Chrome/111.0.0.0 Safari/537.36')
-        options.add_argument('user-agent=%s' % user_agent)
-        options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
-        options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        # options.add_argument("--headless")  # скрытый запуск браузера
-        options.add_argument('--no-sandobox')  # режим песочницы
-        options.add_argument('--disable-gpu')  # во избежание ошибок
-        options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
-        options.add_argument('--lang=en')
-        options.add_experimental_option('useAutomationExtension',False)
-        return options
 
 
     def set_cookies(self):

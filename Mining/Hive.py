@@ -10,23 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import json
 from requests.exceptions import ConnectionError
-
-
-def set_options_of_selenium():
-    options = webdriver.ChromeOptions()
-    user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) + AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
-    options.add_argument('user-agent=%s' % user_agent)
-    options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
-    options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
-    options.add_argument('--no-sandobox')  # режим песочницы
-    options.add_argument('--disable-gpu')  # во избежание ошибок
-    options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
-    # options.add_argument('--disable-brouser-side-navigation')  # прекращение загрузки дополниетльных подресурсов при дляительной загрузки страницы
-    options.add_argument('--lang=en')
-    options.add_experimental_option('useAutomationExtension', False)
-    return options
+from Selenium_Driver import get_driver_selenium
 
 
 def get_farms_api_url():
@@ -72,17 +56,6 @@ def get_quantity_of_rig_online():
 
 def get_farms_url():
     return 'https://the.hiveos.farm/'
-
-
-def get_service_selenium():
-    return Service(executable_path=r'C:/chromedriver.exe')
-# Service(executable_path=r'C:\chromedriver.exe')
-
-
-def get_driver_selenium():
-    options = set_options_of_selenium()
-    service = get_service_selenium()
-    return webdriver.Chrome(service=service, options=options)
 
 
 def get_right_page(driver):

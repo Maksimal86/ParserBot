@@ -5,29 +5,15 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import requests, lxml
 from bs4 import BeautifulSoup
+from Selenium_Driver import set_options_of_selenium
 
 
 class Browser():
     def __init__(self):
-        self.options = Browser.set_options_selenium(self)
+        self.options = set_options_of_selenium()
         self.s = Service(executable_path=r'C:/chromedriver.exe')
         self.driver = webdriver.Chrome(options=self.options, service=self.s)
 
-    def set_options_selenium(self):
-        options = webdriver.ChromeOptions()
-        options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--headless")  # скрытый запуск браузера
-        options.add_argument('--no-sandobox')  # режим песочницы
-        options.add_argument('--disable-gpu')  # во избежание ошибок
-        options.add_argument('--disable-dev-shm-usage')  # для увеличения памяти для хрома
-        options.add_argument('--lang=en')
-        options.add_argument(
-            'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-            'Chrome/106.0.0.0 YaBrowser/22.11.5.715 YaBrowser/2.5 Safari/537.36')
-        prefs = {"profile.managed_default_content_settings.images": 2}  # не загружаем картинки
-        options.add_experimental_option('prefs', prefs)  # не загружаем картинки
-        return options
 
     def selenium_driver_close(self):
         self.driver.close()
