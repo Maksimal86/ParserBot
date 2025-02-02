@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 import requests, lxml
 from bs4 import BeautifulSoup
 
@@ -26,6 +27,7 @@ def get_url():
 
 def main():
     cource = str(get_cource_usd_rub())
+    time.sleep(3)
     print(cource)
     return 'Курс ЦБ USD $ ' + cource.rstrip()[:-1] + 'руб.'
 

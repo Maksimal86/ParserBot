@@ -51,16 +51,10 @@ async def send_message(message, state):
             await bot.send_message(message.from_user.id, i)
     elif message.text.lower() == 'армтек':
         await get_data_from_armtek_and_send_message(message, but)
-    elif message.text.lower() == 'курсы валют':
-        for i in eth_btc.get_cource():
-            await bot.send_message(message.from_user.id, i)
-        for i in monitoring_price_changes_minings_coins.getting_coin_attrbutes():
-            await bot.send_message(message.from_user.id, text=i)
-        await bot.send_message(message.from_user.id, text=USD_RUB.main())
 
 
-def count_calls():
-    '''Счетчик нажатий кнопки "старт"'''
+def message_counter():
+    '''Счетчик нажатий "старт"'''
     counter = 0
     def closure():
         nonlocal counter
@@ -69,7 +63,7 @@ def count_calls():
     return closure
 
 
-counter = count_calls()
+counter = message_counter()
 
 
 async def get_data_from_armtek_and_send_message(message, but):

@@ -3,9 +3,7 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from requests.exceptions import ConnectionError
+
 
 
 def set_options_of_selenium():
@@ -15,8 +13,8 @@ def set_options_of_selenium():
     options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
     options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--headless")  # скрытый запуск браузера
-    options.add_argument('--no-sandobox')  # режим песочницы
+    # options.add_argument("--headless")  # скрытый запуск браузера
+    options.add_argument('--no-sbtmRow lightLineandobox')  # режим песочницы
     options.add_argument('--disable-gpu')  # во избежание ошибок
     options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
     # options.add_argument('--disable-brouser-side-navigation')  # прекращение загрузки дополнительных подресурсов при длительной загрузки страницы

@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 import mytoken, asyncio, datetime
+from aiogram.types import InputFile
 from aiogram import Bot, Dispatcher, executor, types
 import eth_btc, \
-        monitoring_the_number_of_rings_rplant as rplant, USD_RUB,mineros, monitoring_price_changes_minings_coins
-
+        monitoring_of_rigs_wooly_pooly as pool, USD_RUB,mineros, monitoring_price_changes_minings_coins
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 storage = MemoryStorage()
 bot = Bot(mytoken.tokenbot_kurs)
 dp = Dispatcher(bot, storage=storage)
 quantity_rigs = 4
+
+
+
+# @dp.message_handler(commands=['send_photo'])
+# async def send_screenshort(message: types.Message):
+#     print('send screen')
+#     await bot.send_photo(message.from_user.id, 'graphic_HR.png')
+
 
 @dp.message_handler(content_types=['text'])
 
@@ -20,11 +28,16 @@ async def send_message(message, state):
     btn3 = types.KeyboardButton('Курсы')
     but.add(btn1, btn2, btn3)
     global course_change_observer
+
     course_change_observer = False
+
     if message.text.lower() == 'старт':
-        await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
-        course_change_observer = True
-        await asyncio.gather(monitoring_price_changes(message), monitoring_number_of_rigs(message))
+        if counter() == 1:
+            await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
+            course_change_observer = True
+            await asyncio.gather(monitoring_price_changes(message),monitoring_number_of_rigs(message))
+        else:
+            await bot.send_message(message.from_user.id, "старт уже был нажат")
     elif message.text.lower() == 'стоп':
         course_change_observer = False
     elif message.text.lower() == 'курсы':
@@ -35,10 +48,21 @@ async def send_message(message, state):
         await bot.send_message(message.from_user.id, USD_RUB.main())
 
 
+def message_counter():
+    '''Счетчик нажатий "старт"'''
+    counter = 0
+    def closure():
+        nonlocal counter
+        counter += 1
+        return counter
+    return closure
+counter = message_counter()
+
+
 async def monitoring_price_changes(message):
     while course_change_observer:
         print('while')
-        await get_message_about_rigs(message)
+        # await send_message_about_rigs(message)
         for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, text=str(i))
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
@@ -50,31 +74,35 @@ async def monitoring_price_changes(message):
         cource_rub_usd = USD_RUB.main()
         await bot.send_message(message.from_user.id, text=cource_rub_usd)
         print(cource_rub_usd)
-        await asyncio.sleep(600 * 3)
+        await asyncio.sleep(3600)
 
 
-async def get_message_about_rigs(message):
-    driver = rplant.get_driver_selenium()
-    driver.get(rplant.get_rplant_url())
-    rplant.find_wallet(driver)
-    table_of_hashrate = rplant.hashrate_of_rigs(driver)
-    await bot.send_message(message.from_user.id, text=table_of_hashrate + 'Норма \n 5600/10 = 200Мh/s \n'
+async def send_message_about_rigs(message):
+    result_monitoring = pool.main()
+    screenshort = InputFile('graphic_HR.png')
+    list_of_data =result_monitoring [0]
+    quantity_rigs_online = result_monitoring[1]
+    for i in list_of_data:
+        await bot.send_message(message.from_user.id, text=i )
+    await bot.send_message(message.from_user.id, text='Норма \n 5600/10 = 200Мh/s \n'
                                                                           '5600/12 = 240Mh/s \n'
                                                                           '5700 = 143Mh/s \n '
                                                                           '1080 = 70Mh/s')
+    await bot.send_message(message.from_user.id, 'Количество ригов = ' +str(quantity_rigs_online))
+    await bot.send_photo(message.from_user.id, screenshort)
+    return quantity_rigs_online
 
 async def monitoring_number_of_rigs(message):
     while course_change_observer:
         # await check_hive_work(message, state)
+        task = asyncio.create_task(send_message_about_rigs(message))
+        await task
+        quantity_rigs_online = task.result()
         print('monitoring_number_of_rigs run', course_change_observer)
-        result_monitoring_number_of_rigs_rplant = rplant.monitoring_of_mining()
-        quantity_rigs_online = result_monitoring_number_of_rigs_rplant[0]
-        hashrate_of_rigs = result_monitoring_number_of_rigs_rplant[3]
-        if quantity_rigs_online < quantity_rigs:
-            await asyncio.sleep(0.3)
+        # quantity_rigs_online = send_message_about_rigs(message)
+        if int(quantity_rigs_online) < quantity_rigs:
             await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
-                quantity_rigs_online) + '\n' + hashrate_of_rigs)
-            await asyncio.sleep(0.5)
+                quantity_rigs_online))
             mineros.period = 30
             with open('log.txt', 'a') as log:
                 log.write(str(datetime.datetime.now()) + 'rig offline' +
