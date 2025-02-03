@@ -28,9 +28,7 @@ async def send_message(message, state):
     btn3 = types.KeyboardButton('Курсы')
     but.add(btn1, btn2, btn3)
     global course_change_observer
-
     course_change_observer = False
-
     if message.text.lower() == 'старт':
         if counter() == 1:
             await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
@@ -60,11 +58,13 @@ counter = message_counter()
 
 
 async def monitoring_price_changes(message):
+    '''Получаем информацию о ценах и их изменениях и отправляем соответствующее сообщение'''
     while course_change_observer:
         print('while')
+        list_of_coins = '\n'.join(eth_btc.get_cource())
         # await send_message_about_rigs(message)
-        for i in eth_btc.get_cource():
-            await bot.send_message(message.from_user.id, text=str(i))
+
+        await bot.send_message(message.from_user.id, text=list_of_coins)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
             if i[3] == 'N/':
                 await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
@@ -78,19 +78,22 @@ async def monitoring_price_changes(message):
 
 
 async def send_message_about_rigs(message):
+    '''Готовим и отправляем сообщение в нужном формате'''
     result_monitoring = pool.main()
     screenshort = InputFile('graphic_HR.png')
     list_of_data =result_monitoring [0]
     quantity_rigs_online = result_monitoring[1]
-    for i in list_of_data:
-        await bot.send_message(message.from_user.id, text=i )
-    await bot.send_message(message.from_user.id, text='Норма \n 5600/10 = 200Мh/s \n'
-                                                                          '5600/12 = 240Mh/s \n'
+    remove_chars = "[]',"
+    translation_table = str.maketrans("", "", remove_chars)
+    str_message = str(list_of_data).translate(translation_table)
+    await bot.send_message(message.from_user.id, text=str_message +' \n Норма \n 5600 10 = 200Мh/s \n'
+                                                                          '5600 12 = 240Mh/s \n'
                                                                           '5700 = 143Mh/s \n '
-                                                                          '1080 = 70Mh/s')
-    await bot.send_message(message.from_user.id, 'Количество ригов = ' +str(quantity_rigs_online))
+                                                                          '1080 = 70Mh/s' 
+                           '\n Количество ригов = ' +str(quantity_rigs_online))
     await bot.send_photo(message.from_user.id, screenshort)
     return quantity_rigs_online
+
 
 async def monitoring_number_of_rigs(message):
     while course_change_observer:
@@ -101,6 +104,7 @@ async def monitoring_number_of_rigs(message):
         print('monitoring_number_of_rigs run', course_change_observer)
         # quantity_rigs_online = send_message_about_rigs(message)
         if int(quantity_rigs_online) < quantity_rigs:
+            print('quantity_rigs_online = ', quantity_rigs_online)
             await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
                 quantity_rigs_online))
             mineros.period = 30
@@ -108,7 +112,7 @@ async def monitoring_number_of_rigs(message):
                 log.write(str(datetime.datetime.now()) + 'rig offline' +
                           str(quantity_rigs_online) + '\n')
         elif quantity_rigs_online == quantity_rigs:
-            mineros.period = 180
+            mineros.period = 3600
         await asyncio.sleep(mineros.period)
 
 

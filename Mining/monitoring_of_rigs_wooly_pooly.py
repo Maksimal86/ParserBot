@@ -57,7 +57,7 @@ def get_part_of_screenshort(driver):
 def main():
     driver = get_driver_selenium()
     get_right_page(driver)
-    time.sleep(8)
+    time.sleep(3)
     list_of_data = []
     quantity_of_rigs = 0
     for i in get_tables_of_rigs(driver)[1:]:
@@ -67,11 +67,12 @@ def main():
         print('name_of_rigs', name_of_rigs)
         hashrate = get_hashrate_30_min(i)
         print('hashrate = ', hashrate)
-        list_of_data.append(name_of_rigs +' ' + hashrate)
+        list_of_data.append(name_of_rigs + " " + str(hashrate))
+        list_of_hashrate = '\n'.join(list_of_data)
     graphic_HR = get_part_of_screenshort(driver)
     graphic_HR.save('graphic_HR.png')
     driver.quit()
-    return list_of_data, quantity_of_rigs
+    return list_of_hashrate, quantity_of_rigs
 
 
 if __name__ == '__main__':
