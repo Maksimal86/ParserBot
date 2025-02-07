@@ -10,7 +10,7 @@ storage = MemoryStorage()
 bot = Bot(mytoken.tokenbot_kurs)
 dp = Dispatcher(bot, storage=storage)
 quantity_rigs = 4
-
+course_change_observer = False
 
 
 # @dp.message_handler(commands=['send_photo'])
@@ -21,20 +21,20 @@ quantity_rigs = 4
 
 @dp.message_handler(content_types=['text'])
 
-async def send_message(message, state):
+async def send_message(message):
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('старт')
     btn2 = types.KeyboardButton('Стоп')
     btn3 = types.KeyboardButton('Курсы')
     but.add(btn1, btn2, btn3)
     global course_change_observer
-    course_change_observer = False
     if message.text.lower() == 'старт':
+        print('course_change_observer =', course_change_observer)
         if counter() == 1:
             await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
             course_change_observer = True
             await asyncio.gather(monitoring_price_changes(message),monitoring_number_of_rigs(message))
-        else:
+        elif counter() >= 1 and course_change_observer:
             await bot.send_message(message.from_user.id, "старт уже был нажат")
     elif message.text.lower() == 'стоп':
         course_change_observer = False
@@ -52,6 +52,7 @@ def message_counter():
     def closure():
         nonlocal counter
         counter += 1
+        print('counter=', counter)
         return counter
     return closure
 counter = message_counter()
@@ -62,8 +63,6 @@ async def monitoring_price_changes(message):
     while course_change_observer:
         print('while')
         list_of_coins = '\n'.join(eth_btc.get_cource())
-        # await send_message_about_rigs(message)
-
         await bot.send_message(message.from_user.id, text=list_of_coins)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
             if i[3] == 'N/':
@@ -86,10 +85,11 @@ async def send_message_about_rigs(message):
     remove_chars = "[]',"
     translation_table = str.maketrans("", "", remove_chars)
     str_message = str(list_of_data).translate(translation_table)
-    await bot.send_message(message.from_user.id, text=str_message +' \n Норма \n 5600 10 = 200Мh/s \n'
-                                                                          '5600 12 = 240Mh/s \n'
-                                                                          '5700 = 143Mh/s \n '
-                                                                          '1080 = 70Mh/s' 
+    await bot.send_message(message.from_user.id, text=str_message +' \n Норма \n  1080 = 70Mh/s \n'
+                                                                          '5600 10 = 200Mh/s \n'
+                                                                          '5600 12 = 240Мh/s \n '
+                                                                          '5700 = 143Mh/s'
+                                                                   
                            '\n Количество ригов = ' +str(quantity_rigs_online))
     await bot.send_photo(message.from_user.id, screenshort)
     return quantity_rigs_online
@@ -97,12 +97,10 @@ async def send_message_about_rigs(message):
 
 async def monitoring_number_of_rigs(message):
     while course_change_observer:
-        # await check_hive_work(message, state)
         task = asyncio.create_task(send_message_about_rigs(message))
         await task
         quantity_rigs_online = task.result()
         print('monitoring_number_of_rigs run', course_change_observer)
-        # quantity_rigs_online = send_message_about_rigs(message)
         if int(quantity_rigs_online) < quantity_rigs:
             print('quantity_rigs_online = ', quantity_rigs_online)
             await bot.send_message(message.from_user.id, text='Rig offline, online rigs = ' + str(
@@ -112,7 +110,7 @@ async def monitoring_number_of_rigs(message):
                 log.write(str(datetime.datetime.now()) + 'rig offline' +
                           str(quantity_rigs_online) + '\n')
         elif quantity_rigs_online == quantity_rigs:
-            mineros.period = 3600
+            mineros.period = 360
         await asyncio.sleep(mineros.period)
 
 
