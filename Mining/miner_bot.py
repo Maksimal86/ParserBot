@@ -13,14 +13,7 @@ quantity_rigs = 4
 course_change_observer = False
 
 
-# @dp.message_handler(commands=['send_photo'])
-# async def send_screenshort(message: types.Message):
-#     print('send screen')
-#     await bot.send_photo(message.from_user.id, 'graphic_HR.png')
-
-
 @dp.message_handler(content_types=['text'])
-
 async def send_message(message):
     but = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('старт')
@@ -110,7 +103,7 @@ async def monitoring_number_of_rigs(message):
                 log.write(str(datetime.datetime.now()) + 'rig offline' +
                           str(quantity_rigs_online) + '\n')
         elif quantity_rigs_online == quantity_rigs:
-            mineros.period = 360
+            mineros.period = 3600
         await asyncio.sleep(mineros.period)
 
 
