@@ -7,7 +7,7 @@ from Selenium_Driver import get_driver_selenium
 
 
 def get_url(driver):
-    return 'https://woolypooly.com/en/coin/clore/wallet/AchPZxKXt1fL9G9kbyX3TVFjhnPRmHZF5Q'
+    return 'https://woolypooly.com/en/coin/rvn/wallet/RCwKWFnb1jwytx5EnWNoR6pSyc1AfNNwjN'
 
 
 def get_right_page(driver):
