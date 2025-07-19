@@ -58,11 +58,12 @@ async def monitoring_price_changes(message):
         list_of_coins = '\n'.join(eth_btc.get_cource())
         await bot.send_message(message.from_user.id, text=list_of_coins)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
-            if i[3] == 'N/':
+            if i[2] == 'N/':
                 await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
-            elif float(i[3]) > 15 or float(i[3]) < -15:
+
+            elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
                 await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2].
-                                       translate({ord(i): None for i in '()'}) + ' за 1 час, ' + i[3] + '%  за 24 часа')
+                                       translate({ord(i): None for i in '()'}) + ' за 1 час, ' + i[2] + '%  за 24 часа')
         cource_rub_usd = USD_RUB.main()
         await bot.send_message(message.from_user.id, text=cource_rub_usd)
         print(cource_rub_usd)
@@ -81,8 +82,7 @@ async def send_message_about_rigs(message):
     await bot.send_message(message.from_user.id, text=str_message +' \n Норма \n  1080 = 70Mh/s \n'
                                                                           '5600 10 = 200Mh/s \n'
                                                                           '5600 12 = 240Мh/s \n '
-                                                                          '5700 = 143Mh/s'
-                                                                   
+                                                                          '5700 = 143Mh/s'    
                            '\n Количество ригов = ' +str(quantity_rigs_online))
     await bot.send_photo(message.from_user.id, screenshort)
     return quantity_rigs_online

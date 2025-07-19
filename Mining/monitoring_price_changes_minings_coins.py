@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import time
 
 import requests
 import traceback
@@ -18,41 +18,43 @@ def get_soup():
 
 
 def getting_main_tag():
-    main_teg = get_soup().findAll('div', class_="w3-row")[9] # 9 - искомый div
+    main_teg = get_soup().find('ul') # 9 - искомый div
     return main_teg
 
 
 def get_all_blocks_of_coins():
-    return getting_main_tag().find('ul', id='myUL').find_all('li')
+    return get_soup().find('ul', id='myUL').find_all('li')
 
 
 def get_coin_name(i):
-    return i.find('div',style="display: none;").text
+    print(i.find("div", class_="brand").text)
+    return i.find("div", class_="brand").text
 
 
 def get_coin_price(i):
-    return i.findAll('table')[1].findAll('td')[1].text
+    print(i.find("div", class_="estimates").text)
+    return i.find("div", class_="estimates").text
 
 
-def get_coins_delta_price_hour(i):
-    return i.findAll('table')[2].find('td').text
+def get_coins_delta_price(i):
+    try:
+        green = i.find("div", class_="green").text
+        print(green)
+        return green
+    except AttributeError:
+        orange = i.find("div", class_="orange").text
+        print(orange)
+        return orange
 
-
-def get_coins_delta_price_day(i):
-    return i.findAll('table')[2].findAll('td')[1].text
 
 
 def getting_coin_attributes():
-    try:
-        j = 0
-        for i in get_all_blocks_of_coins():
-            j += 1
-            try:
-                yield get_coin_name(i), get_coin_price(i), get_coins_delta_price_hour(i), get_coins_delta_price_day(i)[:-1]
-            except IndexError:
-                continue
-    except:
-        traceback.print_exc()
+    for i in get_all_blocks_of_coins():
+        try:
+            print(get_coin_name(i), get_coin_price(i), get_coins_delta_price(i))
+            yield get_coin_name(i), get_coin_price(i), get_coins_delta_price(i)
+        except IndexError:
+            continue
 
 
 if __name__ == '__main__':

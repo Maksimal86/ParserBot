@@ -3,6 +3,8 @@ import time, datetime
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from PIL import Image
+from selenium.webdriver.common.devtools.v135.fetch import continue_request
+
 from Selenium_Driver import get_driver_selenium
 
 
@@ -48,27 +50,30 @@ def get_full_screenshort(driver):
 def get_part_of_screenshort(driver):
     full_image = get_full_screenshort(driver)
     x = 460  # Начальная координата по X
-    y = 200  # Начальная координата по Y
+    y = 300  # Начальная координата по Y
     width = 940  # Ширина области
-    height = 720  # Высота области
+    height = 1000  # Высота области
     return full_image.crop((x, y, x + width, y + height))
 
 
 def main():
     driver = get_driver_selenium()
     get_right_page(driver)
-    time.sleep(3)
+    time.sleep(2)
     list_of_data = []
     quantity_of_rigs = 0
     for i in get_tables_of_rigs(driver)[1:]:
-        quantity_of_rigs += 1
-        print(quantity_of_rigs, i.text)
-        name_of_rigs = get_name_of_rigs(i)
-        print('name_of_rigs', name_of_rigs)
-        hashrate = get_hashrate_30_min(i)
-        print('hashrate = ', hashrate)
-        list_of_data.append(name_of_rigs + " " + str(hashrate))
-        list_of_hashrate = '\n'.join(list_of_data)
+        try:
+            quantity_of_rigs += 1
+            print(quantity_of_rigs, i.text)
+            name_of_rigs = get_name_of_rigs(i)
+            print('name_of_rigs', name_of_rigs)
+            hashrate = get_hashrate_30_min(i)
+            print('hashrate = ', hashrate)
+            list_of_data.append(name_of_rigs + " " + str(hashrate))
+            list_of_hashrate = '\n'.join(list_of_data)
+        except AttributeError:
+                continue
     graphic_HR = get_part_of_screenshort(driver)
     graphic_HR.save('graphic_HR.png')
     driver.quit()
