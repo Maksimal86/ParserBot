@@ -1,15 +1,25 @@
 # -*- coding: utf-8 -*-
-import time, datetime
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
+import time
 from selenium.webdriver.common.devtools.v135.fetch import continue_request
-
 from Selenium_Driver import get_driver_selenium
 
 
 def get_url(driver):
     return 'https://woolypooly.com/en/coin/rvn/wallet/RCwKWFnb1jwytx5EnWNoR6pSyc1AfNNwjN'
+
+
+def wait_for_page_load(driver, timeout=10):
+    try:
+        WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        )
+    except TimeoutException():
+        raise TimeoutException("Страница не загрузилась за время ожидания.")
 
 
 def get_right_page(driver):
@@ -39,10 +49,12 @@ def get_hashrate_30_min(driver):
 
 
 def get_name_of_rigs(driver):
+    print('name',driver.find_element(By.CSS_SELECTOR, '.btmMobileValue.btmNameShort').text)
     return driver.find_element(By.CSS_SELECTOR, '.btmMobileValue.btmNameShort').text
 
 
 def get_full_screenshort(driver):
+    driver.execute_script("window.scrollBy(0, 70);")
     driver.save_screenshot('Wooly_Polly.png')
     return Image.open('Wooly_Polly.png')
 
@@ -52,16 +64,20 @@ def get_part_of_screenshort(driver):
     x = 460  # Начальная координата по X
     y = 300  # Начальная координата по Y
     width = 940  # Ширина области
-    height = 1000  # Высота области
+    height = 600  # Высота области
     return full_image.crop((x, y, x + width, y + height))
 
 
 def main():
     driver = get_driver_selenium()
     get_right_page(driver)
-    time.sleep(2)
+    # wait_for_page_load(driver)
     list_of_data = []
     quantity_of_rigs = 0
+    list_of_hashrate = []
+    time.sleep(5)
+    graphic_HR = get_part_of_screenshort(driver)
+    graphic_HR.save('graphic_HR.png')
     for i in get_tables_of_rigs(driver)[1:]:
         try:
             quantity_of_rigs += 1
@@ -70,17 +86,15 @@ def main():
             print('name_of_rigs', name_of_rigs)
             hashrate = get_hashrate_30_min(i)
             print('hashrate = ', hashrate)
-            list_of_data.append(name_of_rigs + " " + str(hashrate))
+            list_of_data.append(name_of_rigs + " = " + str(hashrate))
             list_of_hashrate = '\n'.join(list_of_data)
+            print(list_of_hashrate)
         except AttributeError:
                 continue
-    graphic_HR = get_part_of_screenshort(driver)
-    graphic_HR.save('graphic_HR.png')
+
     driver.quit()
     return list_of_hashrate, quantity_of_rigs
 
 
 if __name__ == '__main__':
     main()
-
-

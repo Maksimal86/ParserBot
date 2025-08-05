@@ -58,12 +58,12 @@ async def monitoring_price_changes(message):
         list_of_coins = '\n'.join(eth_btc.get_cource())
         await bot.send_message(message.from_user.id, text=list_of_coins)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
+            print('i[2][:-3] = ', i[2][:-3])
             if i[2] == 'N/':
                 await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
-
             elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
-                await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2].
-                                       translate({ord(i): None for i in '()'}) + ' за 1 час, ' + i[2] + '%  за 24 часа')
+                await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2][:-2] .
+                                       translate({ord(i): None for i in '()'}))
         cource_rub_usd = USD_RUB.main()
         await bot.send_message(message.from_user.id, text=cource_rub_usd)
         print(cource_rub_usd)
@@ -74,7 +74,7 @@ async def send_message_about_rigs(message):
     '''Готовим и отправляем сообщение в нужном формате'''
     result_monitoring = pool.main()
     screenshort = InputFile('graphic_HR.png')
-    list_of_data =result_monitoring [0]
+    list_of_data = result_monitoring [0]
     quantity_rigs_online = result_monitoring[1]
     remove_chars = "[]',"
     translation_table = str.maketrans("", "", remove_chars)

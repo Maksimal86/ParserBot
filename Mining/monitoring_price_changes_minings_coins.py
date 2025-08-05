@@ -39,12 +39,15 @@ def get_coin_price(i):
 def get_coins_delta_price(i):
     try:
         green = i.find("div", class_="green").text
-        print(green)
+        print('green = ', green)
         return green
     except AttributeError:
-        orange = i.find("div", class_="orange").text
-        print(orange)
-        return orange
+        try:
+            orange = i.find("div", class_="orange").text
+            print('orange = ', orange)
+            return orange
+        except AttributeError:
+            return '0.00%'
 
 
 
