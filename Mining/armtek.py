@@ -1,6 +1,7 @@
     # -*- coding: utf-8 -*-
 
 from abc import ABC, abstractmethod
+from json import JSONDecodeError
 from Selenium_Driver import set_options_of_selenium
 import time, datetime, sys
 import traceback
@@ -18,7 +19,7 @@ import mytoken
 class Basic(ABC):
     def __init__(self):
         self.options = set_options_of_selenium()
-        self.service = Service(executable_path=r'C:/chromedriver.exe')
+        self.service = Service(executable_path=r'C:/yandexdriver.exe')
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         self.login = mytoken.loginarm
         self.password = mytoken.passwordarm
@@ -35,12 +36,15 @@ class Basic(ABC):
         :return:
         '''
         print('run set_cookies')
-        with open('sess.txt') as sess:
-            cookies = json.load(sess)  # забираем куки из файла
-        k = self.driver.get_cookies()
-        print(k)
-        for i in range(len(cookies)):
-            self.driver.add_cookie({'name': cookies[i]['name'], 'value': cookies[i]['value']})
+        try:
+            with open('sess.txt') as sess:
+                cookies = json.load(sess)  # забираем куки из файла
+            k = self.driver.get_cookies()
+            print(k)
+            for i in range(len(cookies)):
+                self.driver.add_cookie({'name': cookies[i]['name'], 'value': cookies[i]['value']})
+        except JSONDecodeError:
+            Basic.write_of_cookies_in_file(self)
 
 
     def write_of_cookies_in_file(self):

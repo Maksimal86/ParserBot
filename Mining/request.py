@@ -88,7 +88,7 @@ async def get_data_from_armtek_and_send_message(message, but):
 async def monitoring_of_armtek_delivery(message, but):
     print('run monitoring_of_armtek_delivery')
     time_start_1 = '19:00'
-    time_start_2 = '01:47'
+    time_start_2 = '23:53'
     time_start_3 = '08:44'
     time_start = [time_start_3, time_start_2, time_start_1]
     while True:
