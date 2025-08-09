@@ -13,13 +13,30 @@ def get_url(driver):
     return 'https://woolypooly.com/en/coin/rvn/wallet/RCwKWFnb1jwytx5EnWNoR6pSyc1AfNNwjN'
 
 
-def wait_for_page_load(driver, timeout=10):
-    try:
-        WebDriverWait(driver, timeout).until(
-            EC.presence_of_element_located((By.TAG_NAME, "body"))
-        )
-    except TimeoutException():
-        raise TimeoutException("Страница не загрузилась за время ожидания.")
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+import time
+
+def wait_for_page_load(self, driver, timeout=10):
+    """
+    Ожидает загрузки страницы, используя более надежный подход.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            # Используйть Javascript-код для проверки наличия данных на странице.
+            js_check = 'return document.readyState === "complete";'
+            is_ready = driver.execute_script(js_check)
+            if is_ready:
+                return  # Страница загрузилась
+        except Exception as e:
+            print(f"Ошибка при проверке загрузки: {e}")
+        time.time()
+        time.sleep(0.5)  # Важно: добавление паузы, чтобы не перегружать сервер
+
+    raise TimeoutException(f"Страница не загрузилась за {timeout} секунд.")
 
 
 def get_right_page(driver):
