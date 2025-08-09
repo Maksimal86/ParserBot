@@ -9,8 +9,11 @@ from datetime import date
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
 import json
 import mytoken
 
@@ -26,6 +29,23 @@ class Basic(ABC):
         self.url = 'https://etp.armtek.ru/order/report'
         self.number_of_lines = 25 # количество строк в документе, подлежащее сбору информации
 
+    def wait_for_page_load(self, timeout=10):
+        """
+        Ожидает загрузки страницы, используя более надежный подход.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                js_check = 'return document.readyState === "complete";'
+                is_ready = self.driver.execute_script(js_check)
+                if is_ready:
+                    return  # Страница загрузилась
+            except Exception as e:
+                print(f"Ошибка при проверке загрузки: {e}")
+            time.time()
+            time.sleep(0.5)  # Важно: добавление паузы, чтобы не перегружать сервер
+
+        raise TimeoutException(f"Страница не загрузилась за {timeout} секунд.")
 
     def set_cookies(self):
         '''
@@ -35,6 +55,7 @@ class Basic(ABC):
          остальные данные кук селениум добавляет сам.
         :return:
         '''
+        time.sleep(5)
         print('run set_cookies')
         try:
             with open('sess.txt') as sess:
@@ -82,20 +103,21 @@ class Basic(ABC):
 
 
     def get_right_page(self):
-        '''
+        """
         заходим на нужную страницу
         :param driver:
         :return: None
-        '''
+        """
         self.driver.get(self.url)
 
 
     def check_right_page(self):
-        '''
+        """
         Проверяем - действительно ли мы на нужной странице
         :return: True
-        '''
+        """
         try:
+            self.wait_for_page_load()
             if self.driver.find_element(By.XPATH, '//*[@id="switch-design"]').text != 'Старый дизайн':
                 return True
         except NoSuchElementException:
@@ -173,18 +195,20 @@ class Basic(ABC):
 
 
     def get_date_factura(self,i):
-        '''
+        """
         получаем дату создания фактуры
         :param driver:
         :param i:
         :return: str дата
-        '''
+        """
         time.sleep(1)
         try:
-            return self.driver.find_element(By.XPATH,
-                                            f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]/div/div').text
+            print ('дата фактуры = ',self.driver.find_element(By.CSS_SELECTOR,
+                                            "div img[title='Дата создания фактуры']" ).text)
+            return self.driver.find_element(By.CSS_SELECTOR,
+                                            "img[title='Дата создания фактуры']" ).text
         except NoSuchElementException:
-            print('str 143 NoSuchElementException')
+            print('Error NoSuchElementException in get_date_factura()')
             return ''
 
 
@@ -215,12 +239,12 @@ class Basic(ABC):
 
 
     def find_text_about_rejected_positions(self, i):
-        '''
+        """
         находим текст, говорящий о наличии отказа
         :param driver:
         :param i:
         :return: text
-        '''
+        """
         try:
             return (self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[2]/img')
                     .get_attribute('title'))
@@ -230,12 +254,12 @@ class Basic(ABC):
 
 
     def check_date_of_order(self, i):
-        '''
+        """
         Проверяем соответствие даты заказа сегодняшней дате
         :param driver:
         :param i:
         :return: True
-        '''
+        """
         try:
             if self.get_date_of_order(i) == date.today().strftime("%d.%m.%Y"):
                 return True
@@ -246,17 +270,17 @@ class Basic(ABC):
 
 
     def get_date_of_order(self, i):
-        '''
+        """
         получаем дату заказа
         :param driver:
         :param i:
         :return: str дата
-        '''
+        """
         return self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div').text
 
 
     @abstractmethod
-    def check_date_of_delivery(self,i):
+    def check_date_of_delivery(self,i,date_of_delivery):
         pass
 
 
@@ -265,23 +289,23 @@ class Basic(ABC):
         pass
 
 
-class Morning_request(Basic):
+class MorningRequest(Basic):
     def check_date_of_delivery(self, i, date_of_delivery):
-        '''
+        """
         описываются условия выбора заказов по необходимой дате,
         если дата фактуры сегодняшняя
         :param driver:
         :param i:
         :param date_of_delivery:
         :return: True
-        '''
+        """
         print('run check_date_of_delivery morning')
         try:
             if date.today().strftime("%d.%m.%Y") == self.get_date_factura(i):
-                print(True)
+                print('Дата поставки - True')
                 return True
             else:
-                print("False")
+                print('Дата поставки - False')
         except NoSuchElementException:
             print(sys.exc_info())
             return False
@@ -314,6 +338,7 @@ class Morning_request(Basic):
                 if delivery_data or rejected_positions:
                     print(delivery_data)
                     self.driver.get(self.get_link_of_factura(i))
+                    self.wait_for_page_load(10)
                     list_of_delivery.append(self.get_information_about_refusals(i))
                     for i in range(1, self.number_of_lines):
                         time.sleep(3)
@@ -332,16 +357,16 @@ class Morning_request(Basic):
             return list_of_delivery
 
 
-class Evening_request(Basic):
+class EveningRequest(Basic):
     def check_date_of_delivery(self, i, date_of_delivery):
-        '''
+        """
         описываются условия выбора заказов по необходимы датам
         если дата поставки вчерашняя и даты фактуры нет или она или поставка сегодняшняя, а фактуры нет
         :param driver:
         :param i:
         :param date_of_delivery:
         :return: True
-        '''
+        """
         print("run check_date_of_delivery")
         try:
             if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == \
@@ -401,7 +426,7 @@ class Evening_request(Basic):
                 print('Поставок нет')
                 return []
             else:
-                print('list_of_delivery - ', (list_of_delivery))
+                print('list_of_delivery - ', list_of_delivery)
                 return list_of_delivery
         except:
             print('Error str 425')
@@ -410,30 +435,28 @@ class Evening_request(Basic):
 
 
 def select_of_class():
-    '''
+    """
     Выбираем какую функцию вызывать в зависимости от времени суток
     :return None
-    '''
+    """
     time_now = datetime.datetime.now().time()
     time_object_12_00_00, time_object_00_00_00, time_object_05_00_00, time_object_23_59_59 = get_times_objects()
     try:
         if time_now > time_object_05_00_00 and time_now < time_object_12_00_00:
-            return Evening_request()# поменять
+            return MorningRequest()
         else:
-            return Evening_request()
+            return MorningRequest()
     except TypeError:
         traceback.print_exc()
 
 
 @staticmethod
 def checking_repeated_message(information_about_refusals):
-    '''
+    """
     проверяем: была ли запись о возврате, а, следовательно, и сообщение
     об этом. Записываем, в файл, если сообщения нет.
-    :param driver:
-    :param i:
-    :return: True
-    '''
+
+    """
     print('refaulse = ', information_about_refusals)
     if information_about_refusals:
         print("есть информация об отказах")
@@ -448,18 +471,18 @@ def checking_repeated_message(information_about_refusals):
 
 @staticmethod
 def get_timeobject(strtime):
-    '''
+    """
     :param strtime:
     :return: timeobject
-    '''
+    """
     return datetime.datetime.strptime(strtime, '%H:%M:%S').time()
 
 @staticmethod
 def get_times_objects():
-    '''
+    """
     получаем time_object из str
     :return: time_object
-    '''
+    """
     time_object_12_00_00 = get_timeobject('12:00:00')
     time_object_00_00_00 = get_timeobject('00:00:00')
     time_object_05_00_00 = get_timeobject('05:00:00')
@@ -473,6 +496,7 @@ def main():
     time.sleep(3)
     try:
         request.get_right_page()
+        request.wait_for_page_load()
         request.set_cookies()
         '''повторный вызов нужен для того, чтобы применить куки'''
         request.get_right_page()
