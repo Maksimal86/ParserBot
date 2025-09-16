@@ -6,18 +6,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 import time
 from selenium.webdriver.common.devtools.v135.fetch import continue_request
-from Selenium_Driver import get_driver_selenium
+
+from Mining.Selenium_Driver import get_driver_selenium_chrome
+from Selenium_Driver import get_driver_selenium_edge
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+import time
 
 
 def get_url(driver):
     return 'https://woolypooly.com/en/coin/rvn/wallet/RCwKWFnb1jwytx5EnWNoR6pSyc1AfNNwjN'
 
-
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-import time
 
 def wait_for_page_load(self, driver, timeout=10):
     """
@@ -71,23 +72,30 @@ def get_name_of_rigs(driver):
 
 
 def get_full_screenshort(driver):
-    driver.execute_script("window.scrollBy(0, 70);")
+    driver.execute_script("window.scrollBy(0, 100);")
     driver.save_screenshot('Wooly_Polly.png')
     return Image.open('Wooly_Polly.png')
 
 
 def get_part_of_screenshort(driver):
     full_image = get_full_screenshort(driver)
-    x = 460  # Начальная координата по X
-    y = 300  # Начальная координата по Y
+    x = 500 # Начальная координата по X
+    y = 250  # Начальная координата по Y
     width = 940  # Ширина области
-    height = 600  # Высота области
+    height = 600 # Высота области
     return full_image.crop((x, y, x + width, y + height))
 
 
+def close_bonus(driver):
+    try:
+        driver.find_element(By.CSS_SELECTOR, 'path').click()
+    except NoSuchElementException:
+        pass
+
 def main():
-    driver = get_driver_selenium()
+    driver = get_driver_selenium_chrome()
     get_right_page(driver)
+    close_bonus(driver)
     # wait_for_page_load(driver)
     list_of_data = []
     quantity_of_rigs = 0
@@ -108,7 +116,7 @@ def main():
             print(list_of_hashrate)
         except AttributeError:
                 continue
-
+    print('driver.quit()')
     driver.quit()
     return list_of_hashrate, quantity_of_rigs
 

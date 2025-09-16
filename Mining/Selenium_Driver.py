@@ -2,35 +2,65 @@
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-
-
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
+import inspect
 
 def set_options_of_selenium():
-    options = webdriver.ChromeOptions()
-    user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) + AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
-    options.add_argument('user-agent=%s' % user_agent)
-    options.add_experimental_option("excludeSwitches", ['enable-automation'])  #  FOR uc
-    options.add_argument("--disable-blink-features")  # отключение функций блинк-рантайм
-    options.add_argument("--disable-blink-features=AutomationControlled")
+    firefox_path = r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+    calling_function =inspect.currentframe().f_back.f_code.co_name
+    print('вызывающая функция =', calling_function)
+    if inspect.currentframe().f_back.f_code.co_name == 'get_driver_selenium_chrome':
+        options = webdriver.ChromeOptions()
+    elif inspect.stack()[1] == 'get_driver_selenium_edge':
+        options = webdriver.EdgeOptions()
+    elif inspect.stack()[1] == 'get_service_selenium_firefox()':
+        options = webdriver.FirefoxOptions()
+        options.binary_location = firefox_path
+    else:
+        return None
     # options.add_argument("--headless")  # скрытый запуск браузера
-    options.add_argument('--no-sbtmRow lightLineandobox')  # режим песочницы
-    options.add_argument('--disable-gpu')  # во избежание ошибок
-    options.add_argument('--disable-dev-shm-usage')  # увеличения памяти для хрома
-    # options.add_argument('--disable-brouser-side-navigation')  # прекращение загрузки дополнительных подресурсов при длительной загрузки страницы
-    options.add_argument('--lang=en')
-    options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument("--start-fullscreen")
+    options.add_argument("--start-maximized")
+    options.headless = True
     return options
 
 
-def get_service_selenium():
-    return Service(executable_path=r'C:/chromedriver.exe')
+def get_service_selenium_chrome():
+    service =  ChromeService(executable_path='C:/chromedriver.exe')
+    print(vars(service))
+    return service
 
 
-def get_driver_selenium():
-    service = get_service_selenium()
+def get_service_selenium_edge():
+    return ChromeService(executable_path='C:/msedgedriver.exe')
+
+
+def get_service_selenium_firefox():
+    return FirefoxService(executable_path='C:/geckodriver.exe')
+
+
+def get_driver_selenium_chrome():
+    """ для хрома"""
+    chrome_path = r'C:\chrome-win64\chrome.exe'
+    service = get_service_selenium_chrome()
     options = set_options_of_selenium()
+    options.binary_location =chrome_path
+    print(options.to_capabilities())
     return webdriver.Chrome(service=service, options=options)
 
+
+def get_driver_selenium_edge():
+    """ для edge"""
+    service = get_service_selenium_edge()
+    options = set_options_of_selenium()
+    return webdriver.Edge(options=options, service=service)
+
+
+def get_driver_selenium_firefox():
+    """ для firefox"""
+    firefox_path = r"C:\Program Files(x86)\Mozilla Firefox\firefox.exe"
+    service = get_service_selenium_firefox()
+    options = set_options_of_selenium()
+    return webdriver.Firefox(options=options, service=service)
 
