@@ -1,35 +1,31 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
-from Selenium_Driver import set_options_of_selenium
 import time, datetime, sys
 import traceback
 from datetime import date
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
+from Selenium_Driver import get_driver_selenium_edge
 import json
 import mytoken
 
 
-
 class Basic(ABC):
     def __init__(self):
-        self.options = set_options_of_selenium()
-        self.service = Service(executable_path=r'C:/yandexdriver.exe')
-        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        # self.options =Selenium_Driver.set_options_of_selenium()
+        # print(self.options)
+        self.driver = get_driver_selenium_edge()
         self.login = mytoken.loginarm
         self.password = mytoken.passwordarm
         self.url = 'https://etp.armtek.ru/order/report'
-        self.number_of_lines = 25 # количество строк в документе, подлежащее сбору информации
+        self.number_of_lines = 25  # количество строк в документе, подлежащее сбору информации
 
-    def wait_for_page_load(self, timeout=10):
+
+    def wait_for_page_load(self, timeout=7):
         """
         Ожидает загрузки страницы, используя более надежный подход.
         """
@@ -42,19 +38,18 @@ class Basic(ABC):
                     return  # Страница загрузилась
             except Exception as e:
                 print(f"Ошибка при проверке загрузки: {e}")
-            time.time()
-            time.sleep(0.5)  # Важно: добавление паузы, чтобы не перегружать сервер
-
+            time.sleep(0.5)
         raise TimeoutException(f"Страница не загрузилась за {timeout} секунд.")
 
+
     def set_cookies(self):
-        '''
+        """
                  Куки добавляются именно так, по другому с добавлением всех элемeнтов не работает -
          из каждого словаря из списка словарей берутся значения по ключам 'name' и 'value',
          которые потом попадают в соответствующие словари с этими же ключами и значениями
          остальные данные кук селениум добавляет сам.
         :return:
-        '''
+        """
         time.sleep(5)
         print('run set_cookies')
         try:
@@ -69,43 +64,42 @@ class Basic(ABC):
 
 
     def write_of_cookies_in_file(self):
-        '''получаем куки, и записываем их в файл для того, чтобы входить без капчи'''
+        """получаем куки, и записываем их в файл для того, чтобы входить без капчи"""
         print("run write_of_cookies_in_file")
         self.driver.refresh()
         cookies = self.driver.get_cookies()
         with open('sess.txt', 'w') as file:
-            json.dump(cookies,file)
-        time.sleep(4)
+            json.dump(cookies, file)
+        # time.sleep(4)
 
 
     def log_in_armtek(self):
-        '''
+        """
         осуществляем вход в аккаунт
-        :param driver:
         :return: None
-        '''
+        """
         print('log in armtek')
         try:
-            self.driver.find_element(By.XPATH, '//*[@id="login"]').clear()
+            login_field = self.driver.find_element(By.XPATH, '//*[@id="login"]')
+            login_field.clear()
             time.sleep(1)
-            self.driver.find_element(By.XPATH, '//*[@id="login"]').send_keys(self.login)
+            login_field.send_keys(self.login)
             time.sleep(1)
             self.driver.find_element(By.XPATH,
-                         '//*[@id="authNewTemplateFormContainer"]/div/div[1]/div[2]/div/form/div[4]/div[1]/label'
-                                '/i[1]')
-            '//*[@id="login-btn"]'
-            self.driver.find_element(By.XPATH, '//*[@id="password"]').clear()
+                                     '//*[@id="authNewTemplateFormContainer"]/div/div[1]/div[2]/div/form/div[4]/div[1]'
+                                     '/label/i[1]')
+            password_field = self.driver.find_element(By.XPATH,'//*[@id="password"]')
+            password_field.clear()
             time.sleep(1)
-            self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(self.password, Keys.ENTER)
+            password_field.send_keys(self.password, Keys.ENTER)
             time.sleep(5)
         except NoSuchElementException:
-            print('except str72 само зашло', sys.exc_info()) #проверить логику
+            print('except str95 само зашло', sys.exc_info())
 
 
     def get_right_page(self):
         """
         заходим на нужную страницу
-        :param driver:
         :return: None
         """
         self.driver.get(self.url)
@@ -125,143 +119,158 @@ class Basic(ABC):
             return False
 
 
-    def set_data_of_orders(self):
+    def set_date_of_orders(self):
         """
         задаем количество дней days, за которое выводится список заказов
         и формируем этот список нажатием enter
         :return None
         """
-        print('set_data_of_orders')
+        print('set_date_of_orders')
         days = 10
         self.driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').clear()  # первая ячейка даты создания заказа
         self.driver.find_element(By.XPATH, '//*[@id="SCRDATE"]').send_keys('\uE003' * days,
-                                                                      (date.today() - datetime.timedelta(days=days)).strftime(
-                                                                           "%d.%m.%Y"), Keys.ENTER)
+                                                                           (date.today() - datetime.timedelta(
+                                                                               days=days)).strftime(
+                                                                               "%d.%m.%Y"), Keys.ENTER)
 
 
-    def get_information_about_refusals(self, i):
-        '''
-        Если есть отказные позиции - возвращается message с отказом и комментарием
-        :param driver:
-        :param i:
-        :return: message
-        '''
-        print('get_information_about_refusals')
-        if self.check_rejected_positions(i):
-            message = 'Отказ ' + self.get_komment(i)
-        else:
-            message = ""
-        return message
+    def get_order_list_strings(self):
+        """получаем строки с заказами"""
+        list_of_string = self.driver.find_elements(By.CSS_SELECTOR, 'tr[role].even, tr[role].odd')
+        return list_of_string
 
 
-    def get_amount_of_delivery(self, i):
-        '''
-        Получаем сумму поставки
-        :param driver:
-        :param i:
-        :return:str сумма
-        '''
+    def get_order_date(self, order_line):
+        """передавая строку с заказом, ищем в ней дату заказа """
+        order_date = order_line.find_elements(By.CSS_SELECTOR, 'td.text-center')[3].find_element(By.CSS_SELECTOR,
+                                                                                                 'div.nowrap>div').text
+        return order_date
+
+# не печатается дата фактуры
+
+    def get_order_data_cells(self, order_line):
+        """Получаем ячейки данных из строки заказа"""
+        data_cells = order_line.find_elements(By.CSS_SELECTOR, 'td')
+        return data_cells
+
+
+    def find_rejected_positions(self, order_line):
+        """
+        находим отказные позиции
+        :param order_line: строка с заказом
+        :return: text
+        """
         try:
-            return self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/'
-                                                                     f'td[12]/div').text
+            order_line.find_element(By.CSS_SELECTOR, "td>img[title='Все позиции отклонены']")
+            order_date = self.get_order_date(order_line)
+            return True, order_date
+        except NoSuchElementException:
+            try:
+                order_line.find_element(By.CSS_SELECTOR,
+                                               "td>img[title='Имеются частично  поставленные и отклоненные позиции']")
+                order_date = self.get_order_date(order_line)
+                return True, order_date
+            except NoSuchElementException:
+                print('False reject')
+                return False, None
+
+
+    @staticmethod
+    def record_comment(comment):
+        """
+        Записываем комментарий об отказе в файл, если его там нет
+        :return: True, None
+        """
+        with open('armtek.txt', 'r+', encoding='utf-8' ) as f:
+            rejected_strings = f.readlines()
+            if comment in rejected_strings:
+                print('возврат уже зафиксирован')
+                return None
+            else:
+                f.write(comment)
+                return True
+
+
+    def get_delivery_amount(self,order_line):
+        """
+        Получаем сумму поставки
+        :param order_line: строка с заказом
+        :return:str сумма
+        """
+        try:
+            delivery_amount = self.get_order_data_cells(order_line)[12].text
+            print('сумма поставки = ',delivery_amount)
+            return delivery_amount
         except NoSuchElementException:
             return ''
 
 
-    def get_komment(self, i):
-        '''
+    def get_сomment(self, order_line):
+        """
         Получаем комментарий поставки
-        :param driver:
-        :param i:
+        :param order_line: строка с заказом
         :return:str комментарий
-        '''
+        """
         try:
-            return self.driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[15]/span').text
+            comment = self.get_order_data_cells(order_line)[14].text
+            print('комментарий - ', comment)
+            return comment
         except NoSuchElementException:
-            return 'комментария нет'
+            print('комментария нет')
+            return 'комментария нет'  #?????
 
 
-
-    def get_date_of_delivery(self,i):
-        '''
-        получаем дату поставки
-        :return str дата
-        '''
+    def get_delivery_date(self, order_line):
+        """
+        Получаем дату поставки
+        :param order_line: строка с заказом
+        :return:str комментарий
+        """
         try:
-            return self.driver.find_element(By.XPATH,f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[4]'
-                                                                    f'/div/div').text
+            delivery_date = (self.get_order_data_cells(order_line)[4].find_element
+                             (By.CSS_SELECTOR,'img[title = "Дата создания поставки"]').text)
+            print('дата поставки = ', delivery_date)
+            return delivery_date
         except NoSuchElementException:
             return None
 
 
-    def get_date_factura(self,i):
+    def get_invoice_date(self, order_line):
         """
         получаем дату создания фактуры
-        :param driver:
-        :param i:
+        :param order_line: строка с заказом
         :return: str дата
         """
-        time.sleep(1)
         try:
-            print ('дата фактуры = ',self.driver.find_element(By.CSS_SELECTOR,
-                                            "div img[title='Дата создания фактуры']" ).text)
-            return self.driver.find_element(By.CSS_SELECTOR,
-                                            "img[title='Дата создания фактуры']" ).text
+            invoice_date = self.get_order_data_cells(order_line)[5].find_element(By.CSS_SELECTOR, 'img[title = "Дата создания фактуры"]').text
+            print('дата фактуры = ', invoice_date)
+            return invoice_date
         except NoSuchElementException:
-            print('Error NoSuchElementException in get_date_factura()')
-            return ''
+            return None
 
 
-    def get_link_of_factura(self,i):
-        '''
+    def get_link_of_invoice(self, order_line):
+        """
         Получаем ссылку на фактуру
-        :param driver:
-        :param i:
+        :param order_line: строка с заказом
         :return: href
-        '''
-        return (self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]/div/a')
-                .get_attribute('href'))
-
-
-    def check_rejected_positions(self, i):
-        '''
-         Проверяем наличие отказа в списке поставок можно убрать - оставить только find...
-        :return: True
-        '''
-        text = self.find_text_about_rejected_positions(i)
-        if (self.check_date_of_order(i) and text == 'Все позиции отклонены'   or
-                text == 'Имеются частично поставленные и отклоненные позиции'):
-            print("True reject")
-            return True
-        else:
-            print('False reject')
-            return False
-
-
-    def find_text_about_rejected_positions(self, i):
         """
-        находим текст, говорящий о наличии отказа
-        :param driver:
-        :param i:
-        :return: text
-        """
-        try:
-            return (self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[2]/img')
-                    .get_attribute('title'))
-        except NoSuchElementException:
-            print('False reject')
-            return False
+        link = (self.get_order_data_cells(order_line)[5]
+                .find_element(By.CSS_SELECTOR, "div>img[title='Номер фактуры']+a").get_attribute('href'))
+        print('linK=', link)
+        return link
 
-
-    def check_date_of_order(self, i):
+#  нужна ли?
+    def check_date_of_order(self, order_line):
         """
         Проверяем соответствие даты заказа сегодняшней дате
-        :param driver:
-        :param i:
+        :param order_line: строка с заказом
         :return: True
         """
+        delta = datetime.timedelta(days=1)
         try:
-            if self.get_date_of_order(i) == date.today().strftime("%d.%m.%Y"):
+            if self.get_order_date(order_line) == '27.09.2025':
+                # if self.get_date_of_order(order_line) == date.today().strftime("%d.%m.%Y"):
                 return True
             else:
                 return False
@@ -269,18 +278,13 @@ class Basic(ABC):
             return False
 
 
-    def get_date_of_order(self, i):
-        """
-        получаем дату заказа
-        :param driver:
-        :param i:
-        :return: str дата
-        """
-        return self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[3]/div/div').text
+    def change_of_organization(self):
+        self.driver.find_element(By.ID, 'kunnrRgLink').click()
+        self.driver.find_element(By.ID, 'kunnrRgMenu').click()
 
 
     @abstractmethod
-    def check_date_of_delivery(self,i,date_of_delivery):
+    def check_date_of_delivery(self, i, date_of_delivery):
         pass
 
 
@@ -290,18 +294,16 @@ class Basic(ABC):
 
 
 class MorningRequest(Basic):
-    def check_date_of_delivery(self, i, date_of_delivery):
-        """
-        описываются условия выбора заказов по необходимой дате,
+    def check_date_of_delivery(self, order_line, date_of_delivery):
+        """описываются условия выбора заказов по необходимой дате,
         если дата фактуры сегодняшняя
-        :param driver:
-        :param i:
+        :param order_line: строка с заказом
         :param date_of_delivery:
         :return: True
         """
         print('run check_date_of_delivery morning')
         try:
-            if date.today().strftime("%d.%m.%Y") == self.get_date_factura(i):
+            if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == self.get_invoice_date(order_line):
                 print('Дата поставки - True')
                 return True
             else:
@@ -311,50 +313,41 @@ class MorningRequest(Basic):
             return False
 
 
-    def get_list_of_spare_parts_by_factura(self,i):
-        '''
+    def get_spare_parts_by_invoice(self):
+        """
         получаем наименование запчасти в фактуре
-        :param driver:
-        :param i:
         :return: str запчасть
-        '''
-        return  self.driver.find_element(By.XPATH, f'//*[@id="DataTables_Table_0"]/tbody/tr[{i}]/td[5]').text
-
+        """
+        strings_spare_parts = self.get_order_list_strings()
+        data_cells = self.get_order_data_cells(strings_spare_parts)
+        spare_parts = data_cells[4].text
+        print('spare_parts = ', spare_parts)
+        return spare_parts
+################## добавить артикул в вывод
 
     def get_data(self):
         """
-        Собираем в единых список сумму все комментарии предстоящих поставок
-        :param driver:
+        Собираем в единых список сумму и все комментарии предстоящих поставок
         :return: список поставок
         """
         print('run get_data')
         list_of_delivery = []
-        try:
-            self.set_data_of_orders()
-            for i in range(1, self.number_of_lines):
-                date_of_delivery = self.get_date_of_delivery(i)
-                delivery_data = self.check_date_of_delivery(i,date_of_delivery)
-                rejected_positions = self.check_rejected_positions(i)
-                if delivery_data or rejected_positions:
-                    print(delivery_data)
-                    self.driver.get(self.get_link_of_factura(i))
-                    self.wait_for_page_load(10)
-                    list_of_delivery.append(self.get_information_about_refusals(i))
-                    for i in range(1, self.number_of_lines):
-                        time.sleep(3)
-                        try:
-                            spare_parts = self.get_list_of_spare_parts_by_factura(i)
-                            print('запчасти', spare_parts)
-                            list_of_delivery.append(spare_parts)
-                        except NoSuchElementException:
-                            break
-                else:
-                    continue
-            print(list_of_delivery)
-            return list_of_delivery
-        except IndexError:
-            print('данных больше нет')
-            return list_of_delivery
+        self.set_date_of_orders()
+        time.sleep(7)
+        for order_line in self.get_order_list_strings():
+            invoice_date = self.get_invoice_date(order_line)
+            comment = self.get_сomment(order_line)
+            rejected_positions = self.find_rejected_positions(order_line)
+            print('rejected_positions = ', rejected_positions)
+            if rejected_positions[0] == True and self.record_comment(comment):
+                list_of_delivery.append("Отказ, " + "Заказ от " + rejected_positions[1] + ' ' + comment)
+            else:
+                continue
+            if invoice_date == date.today():
+                spare_parts = self.get_spare_parts_by_invoice()
+                list_of_delivery.append(spare_parts)
+        print('Поставка - ', list_of_delivery)
+        return list_of_delivery
 
 
 class EveningRequest(Basic):
@@ -362,7 +355,6 @@ class EveningRequest(Basic):
         """
         описываются условия выбора заказов по необходимы датам
         если дата поставки вчерашняя и даты фактуры нет или она или поставка сегодняшняя, а фактуры нет
-        :param driver:
         :param i:
         :param date_of_delivery:
         :return: True
@@ -370,8 +362,8 @@ class EveningRequest(Basic):
         print("run check_date_of_delivery")
         try:
             if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == \
-                    date_of_delivery and self.get_date_factura(i) == '' or \
-                    date.today().strftime("%d.%m.%Y") == date_of_delivery and self.get_date_factura(i) == '':
+                    date_of_delivery and self.get_invoice_date(i) == '' or \
+                    date.today().strftime("%d.%m.%Y") == date_of_delivery and self.get_invoice_date(i) == '':
                 print('True')
                 return True
             else:
@@ -380,7 +372,6 @@ class EveningRequest(Basic):
         except NoSuchElementException:
             print(sys.exc_info())
             return False
-
 
     @staticmethod
     def check_and_add_no_delivery(list_of_delivery):
@@ -393,12 +384,10 @@ class EveningRequest(Basic):
             list_of_delivery.append('Пока поставка не сформирована')
             print('Поставок нет')
 
-
     def get_data(self):
         """
         Собираем в единых список сумму по предстоящей поставке и комментарий к ней
         number of lines - количество просматриваемых строк в списке заказов
-        :param driver:
         :return: список ЗЧ в поставке
         """
         print('run get_data Morning class ')
@@ -415,7 +404,7 @@ class EveningRequest(Basic):
                 date_of_delivery = self.get_date_of_delivery(i)
                 if self.check_date_of_delivery(i, date_of_delivery):
                     amount_of_delivery = self.get_amount_of_delivery(i)
-                    komment = self.get_komment(i)
+                    komment = self.get_сomment(i)
                     list_of_delivery.append('Сумма: ' + amount_of_delivery + 'руб, комментарий: ' + komment)
                     print(amount_of_delivery, '\n', komment)
                 else:
@@ -450,7 +439,7 @@ def select_of_class():
         traceback.print_exc()
 
 
-@staticmethod
+
 def checking_repeated_message(information_about_refusals):
     """
     проверяем: была ли запись о возврате, а, следовательно, и сообщение
@@ -469,7 +458,7 @@ def checking_repeated_message(information_about_refusals):
                 return False
 
 
-@staticmethod
+
 def get_timeobject(strtime):
     """
     :param strtime:
@@ -477,7 +466,8 @@ def get_timeobject(strtime):
     """
     return datetime.datetime.strptime(strtime, '%H:%M:%S').time()
 
-@staticmethod
+
+
 def get_times_objects():
     """
     получаем time_object из str
@@ -492,7 +482,7 @@ def get_times_objects():
 
 def main():
     print('run armtek')
-    request  = select_of_class()
+    request = select_of_class()
     time.sleep(3)
     try:
         request.get_right_page()
@@ -517,6 +507,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
