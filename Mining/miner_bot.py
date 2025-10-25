@@ -9,7 +9,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 storage = MemoryStorage()
 bot = Bot(mytoken.tokenbot_kurs)
 dp = Dispatcher(bot, storage=storage)
-quantity_rigs = 4
+quantity_rigs = 5
 course_change_observer = False
 
 
@@ -40,19 +40,19 @@ async def send_message(message):
 
 
 def message_counter():
-    '''Счетчик нажатий "старт"'''
-    counter = 0
+    """Счетчик нажатий "старт\""""
+    click_counter = 0
     def closure():
-        nonlocal counter
-        counter += 1
-        print('counter=', counter)
-        return counter
+        nonlocal click_counter
+        click_counter += 1
+        print('counter=', click_counter)
+        return click_counter
     return closure
 counter = message_counter()
 
 
 async def monitoring_price_changes(message):
-    '''Получаем информацию о ценах и их изменениях и отправляем соответствующее сообщение'''
+    """Получаем информацию о ценах и их изменениях и отправляем соответствующее сообщение"""
     while course_change_observer:
         print('while')
         list_of_coins = '\n'.join(eth_btc.get_cource())
@@ -71,7 +71,7 @@ async def monitoring_price_changes(message):
 
 
 async def send_message_about_rigs(message):
-    '''Готовим и отправляем сообщение в нужном формате'''
+    """Готовим и отправляем сообщение в нужном формате"""
     result_monitoring = pool.main()
     screenshort = InputFile('graphic_HR.png')
     list_of_data = result_monitoring [0]
@@ -114,3 +114,5 @@ except:
     course_change_observer = True
     # await monitoring_price_changes(message)
     executor.start_polling(dp)
+
+# продумать перезапуск в случае ошибки самой телеги. Проверка на отсутствие сообщений

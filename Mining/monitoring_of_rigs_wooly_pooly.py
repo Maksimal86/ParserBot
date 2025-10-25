@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from selenium.common import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+# from selenium.common import TimeoutException
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 import time
-from selenium.webdriver.common.devtools.v135.fetch import continue_request
-
-from Mining.Selenium_Driver import get_driver_selenium_chrome
+from Selenium_Driver import get_driver_selenium_chrome
 from Selenium_Driver import get_driver_selenium_edge
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -16,33 +14,31 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 
 
-def get_url(driver):
+def get_url():
     return 'https://woolypooly.com/en/coin/rvn/wallet/RCwKWFnb1jwytx5EnWNoR6pSyc1AfNNwjN'
 
 
-def wait_for_page_load(self, driver, timeout=10):
+def wait_for_page_load(driver, timeout=10):
     """
     Ожидает загрузки страницы, используя более надежный подход.
     """
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
-            # Используйть Javascript-код для проверки наличия данных на странице.
             js_check = 'return document.readyState === "complete";'
             is_ready = driver.execute_script(js_check)
             if is_ready:
-                return  # Страница загрузилась
+                return True
         except Exception as e:
             print(f"Ошибка при проверке загрузки: {e}")
         time.time()
         time.sleep(0.5)  # Важно: добавление паузы, чтобы не перегружать сервер
-
     raise TimeoutException(f"Страница не загрузилась за {timeout} секунд.")
 
 
 def get_right_page(driver):
     print('run right page')
-    driver.get(get_url(driver))
+    driver.get(get_url())
 
 
 def get_main_table(driver):
@@ -50,47 +46,47 @@ def get_main_table(driver):
 
 
 def get_total_hashrate(driver):
-    '''Нашли общий хешрейт'''
+    """Нашли общий хешрейт"""
     return get_main_table(driver).find_element(By.CSS_SELECTOR, '.tooltip').text
 
 
 def get_tables_of_rigs(driver):
-    '''Получаем список данных о ригах'''
-    # for i in driver.find_elements(By.CSS_SELECTOR, '.btmRow.lightLine'):
-    #     print(i.text)
+    """Получаем список данных о ригах"""
+
     return driver.find_elements(By.CSS_SELECTOR, 'div[data-v-15c35004].btmRow.lightLine')
 
 
 def get_hashrate_30_min(driver):
-    '''список хешрейтов за 30 минут для каждого рига '''
+    """список хешрейтов за 30 минут для каждого рига """
     return driver.find_element(By.CSS_SELECTOR, '.btmCell.btmWideCell.btmBlockCell.lightCardContrast').text
 
 
 def get_name_of_rigs(driver):
-    print('name',driver.find_element(By.CSS_SELECTOR, '.btmMobileValue.btmNameShort').text)
+    print('name', driver.find_element(By.CSS_SELECTOR, '.btmMobileValue.btmNameShort').text)
     return driver.find_element(By.CSS_SELECTOR, '.btmMobileValue.btmNameShort').text
 
 
 def get_full_screenshort(driver):
-    driver.execute_script("window.scrollBy(0, 100);")
+    driver.execute_script("window.scrollBy(0, 150);")
     driver.save_screenshot('Wooly_Polly.png')
     return Image.open('Wooly_Polly.png')
 
 
 def get_part_of_screenshort(driver):
     full_image = get_full_screenshort(driver)
-    x = 500 # Начальная координата по X
+    x = 500  # Начальная координата по X
     y = 250  # Начальная координата по Y
     width = 940  # Ширина области
-    height = 600 # Высота области
+    height = 600  # Высота области
     return full_image.crop((x, y, x + width, y + height))
 
 
 def close_bonus(driver):
     try:
-        driver.find_element(By.CSS_SELECTOR, 'path').click()
+        driver.find_element(By.CSS_SELECTOR, 'div[data-v-0c0f4e4a].close-mark').click()
     except NoSuchElementException:
         pass
+
 
 def main():
     driver = get_driver_selenium_chrome()
@@ -116,8 +112,8 @@ def main():
             print(list_of_hashrate)
         except AttributeError:
                 continue
-    print('driver.quit()')
-    driver.quit()
+    print('driver.close()')
+    driver.close()
     return list_of_hashrate, quantity_of_rigs
 
 

@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import json
 from requests.exceptions import ConnectionError
-from Selenium_Driver import get_driver_selenium
+from Selenium_Driver import get_driver_selenium_edge
 
 
 def get_farms_api_url():
