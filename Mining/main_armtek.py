@@ -3,7 +3,6 @@
 import traceback
 import datetime
 import time
-from selenium.common.exceptions import NoSuchElementException
 import armtek_morning_evening as ame
 
 
@@ -73,6 +72,7 @@ def record_returns(request):
         elif not request.invoice_date:
             comment = 'Возврат ' + request.comment + ' на сумму ' + request.delivery_amount + ' не проведен'
             print('\t', 'comment = ', comment)
+            return comment
         return None
     else:
         return None
@@ -127,7 +127,6 @@ def fetch_web_data(request):
             if isinstance(request, ame.MorningRequest):
                 break  # останавливаем цикл, когда получаем фактуру в утреннем запросе
         else:
-            print('continue')
             continue
     if not delivery_list:
         delivery_list.append('Поставки нет')
@@ -139,7 +138,6 @@ def main():
     request главная функция
     """
     request = select_of_class()
-    print("\t\trequest=", request)
     try:
         time.sleep(3)
         first_spare_parts = fetch_web_data(request)
