@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import time
+
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import InputFile
@@ -52,6 +54,7 @@ async def send_message(message):
                                    text=i[0] + i[1] + '  ' + i[2] + ' за 1 час, ' + i[3] + '%  за 24 часа')
         await bot.send_message(message.from_user.id, USD_RUB.main())
     print('course_change_observer =', course_change_observer)
+    print('chatid =', message.chat.id)
 
 
 def message_counter():
@@ -111,7 +114,7 @@ async def send_message_about_rigs(message):
                                                                     '5600 12 = 240Мh/s \n '
                                                                     '5700 = 143Mh/s'
                                                                     '\n Количество ригов = ' + str(
-                                                                        quantity_rigs_online))
+        quantity_rigs_online))
     await bot.send_photo(message.from_user.id, screenshort)
     return quantity_rigs_online
 
@@ -136,9 +139,13 @@ async def monitoring_number_of_rigs(message):
                 log.write(str(datetime.datetime.now()) + 'rig offline' +
                           str(quantity_rigs_online) + '\n')
         elif quantity_rigs_online == quantity_rigs:
-            mineros.period = 30
+            mineros.period = 3600
         await asyncio.sleep(mineros.period)
 
 
-executor.start_polling(dp)
-
+while True:
+    try:
+        executor.start_polling(dp)
+    except Exception as e:
+        bot.send_message(1333130301, text=f'ошибка {e}, перезапуск бота')
+        continue
