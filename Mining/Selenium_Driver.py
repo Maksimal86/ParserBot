@@ -27,7 +27,7 @@ def set_options_of_selenium():
 
 
 def get_service_selenium_chrome():
-    service =  ChromeService(executable_path='C:/chromedriver.exe')
+    service = ChromeService(executable_path='C:/chromedriver.exe')
     print(vars(service))
     return service
 

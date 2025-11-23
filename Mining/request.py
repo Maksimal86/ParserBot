@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-import sys
 import asyncio
-import main_armtek
-import time
-import mytoken, USD_RUB
-import logging
 import datetime
+import logging
+import sys
+
 from aiogram import Bot, Dispatcher, executor, types
-import hashrateno, mineros, Hive, eth_btc, armtek, \
-    monitoring_price_changes_minings_coins, timer, monitoring_the_number_of_rings_rplant as rplant
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
+import hashrateno
+import main_armtek
+import monitoring_the_number_of_rings_rplant as rplant
+import mytoken
+import timer
 
 # создали хранилище памяти
 storage = MemoryStorage()
@@ -61,7 +61,6 @@ def message_counter():
         nonlocal counter
         counter += 1
         return counter
-
     return closure
 
 
@@ -93,8 +92,10 @@ async def get_data_from_armtek_and_send_message(message, but):
                     await bot.send_message(message.from_user.id, i, reply_markup=but)
 
 
-
 async def monitoring_armtek_delivery(message, but):
+    """
+    отслеживание поставок по времени
+    """
     print('run monitoring_of_armtek_delivery')
     time_start_1 = '20:00'
     time_start_2 = '23:53'
@@ -109,56 +110,10 @@ async def monitoring_armtek_delivery(message, but):
             print("armtek_monitor() False")
 
 
-#
-# timer return False19:00:00 07:11:09 190000 71109
-# armtek_monitor() False
-# class GoogleKodAuthenticator(StatesGroup):
-#     """
-#     Класс для хранения состояний
-#     Для получения кода аутентификатора
-#     """
-#     waiting_kod = State()
-#
-
-# async def need_send_kod(message: types.Message, state: FSMContext):
-#     """
-#  Для получения кода аутентификатора
-#   запускается, несмотря на фильтры, потому что функция запускается отдельным вызовом, минуя фильтры.
-#     """
-#     print('run kod')
-#     await message.answer('Нужен код')
-#     # устанавливаем  в состояние waiting kod
-#     await GoogleKodAuthenticator.waiting_kod.set()
-
-
-# # если убрать state=Google_kod.waiting_kod, то get_cod() не обработает state
-# @dp.message_handler(content_types=['text'],state=GoogleKodAuthenticator.waiting_kod)
-# async def get_kod_of_authenticator(message: types.Message, state: FSMContext):
-#     print('run get_kod_of_authenticator()')
-#     await state.update_data(G_kod=message.text)
-#     # получаем сохраненные данные из хранилища
-#     user_data = await state.get_data('G_kod')
-#     print('user_data', user_data)
-#     # получаем доступ к state как к словарю
-#     async with state.proxy() as data:
-#         Hive.hive_get_kod_of_authenticator(data['G_kod'])
-#     await state.finish()
-#     await bot.send_message(message.from_user.id,text=Hive.get_hive_hashrate())
-
-
-# async def check_hive_work(message, state: FSMContext):
-#     """
-#     Для получения кода аутентификатора()
-#     """
-#     print('run check_hive_work()')
-#     with open('hive_work.txt', 'r') as file:
-#        read= file.read()
-#     if read == 'False':
-#         await need_send_kod(message, state)
 try:
     executor.start_polling(dp, skip_updates=False)
 except:
     with open('log.txt', 'a', encoding='utf-8') as log:
         log.write('start_polling ' + str(datetime.datetime.now()) + ' нет соединения ' + str(sys.exc_info()) + '\n')
 
-    # executor.start_polling(dp, skip_updates=True)
+

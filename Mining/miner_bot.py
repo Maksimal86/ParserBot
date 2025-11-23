@@ -51,7 +51,7 @@ async def send_message(message):
             await bot.send_message(message.from_user.id, i)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
             await bot.send_message(message.from_user.id,
-                                   text=i[0] + i[1] + '  ' + i[2] + ' за 1 час, ' + i[3] + '%  за 24 часа')
+                                   text=i[0] +' '+ i[1] + '  ' + i[2][:-1])
         await bot.send_message(message.from_user.id, USD_RUB.main())
     print('course_change_observer =', course_change_observer)
     print('chatid =', message.chat.id)
@@ -88,12 +88,15 @@ async def monitoring_price_changes(message):
         list_of_coins = '\n'.join(eth_btc.get_cource())
         await bot.send_message(message.from_user.id, text=list_of_coins)
         for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
-            print('i[2][:-3] = ', i[2][:-3])
-            if i[2] == 'N/':
-                await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
-            elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
-                await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2][:-2].
-                                       translate({ord(i): None for i in '()'}))
+            try:
+                print('i[2][:-3] = ', i[2][:-3])
+                if i[2] == 'N/':
+                    await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
+                elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
+                    await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2][:-2].
+                                           translate({ord(i): None for i in '()'}))
+            except ValueError:
+                await bot.send_message(message.from_user.id, text=i[0]+" Нет данных ")
         cource_rub_usd = USD_RUB.main()
         await bot.send_message(message.from_user.id, text=cource_rub_usd)
         print(cource_rub_usd)
@@ -114,7 +117,7 @@ async def send_message_about_rigs(message):
                                                                     '5600 12 = 240Мh/s \n '
                                                                     '5700 = 143Mh/s'
                                                                     '\n Количество ригов = ' + str(
-        quantity_rigs_online))
+                                                                        quantity_rigs_online))
     await bot.send_photo(message.from_user.id, screenshort)
     return quantity_rigs_online
 

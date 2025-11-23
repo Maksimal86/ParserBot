@@ -1,14 +1,5 @@
-# -*- coding: utf-8 -*-
-# from selenium.common import TimeoutException
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
-import time
 from Selenium_Driver import get_driver_selenium_chrome
-from Selenium_Driver import get_driver_selenium_edge
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
@@ -39,6 +30,8 @@ def wait_for_page_load(driver, timeout=10):
 def get_right_page(driver):
     print('run right page')
     driver.get(get_url())
+    time.sleep(2)
+    close_bonus(driver)
 
 
 def get_main_table(driver):
@@ -83,22 +76,23 @@ def get_part_of_screenshort(driver):
 
 def close_bonus(driver):
     try:
-        driver.find_element(By.CSS_SELECTOR, 'div[data-v-0c0f4e4a].close-mark').click()
+        driver.find_element(By.CSS_SELECTOR, 'div.close-mark').click()
+        print('закрыли бонус')
     except NoSuchElementException:
-        pass
+        print('не нашел крестик')
+
 
 
 def main():
     driver = get_driver_selenium_chrome()
     get_right_page(driver)
-    close_bonus(driver)
     # wait_for_page_load(driver)
     list_of_data = []
     quantity_of_rigs = 0
     list_of_hashrate = []
     time.sleep(5)
-    graphic_HR = get_part_of_screenshort(driver)
-    graphic_HR.save('graphic_HR.png')
+    graphic_hr = get_part_of_screenshort(driver)
+    graphic_hr.save('graphic_HR.png')
     for i in get_tables_of_rigs(driver)[1:]:
         try:
             quantity_of_rigs += 1
@@ -111,7 +105,7 @@ def main():
             list_of_hashrate = '\n'.join(list_of_data)
             print(list_of_hashrate)
         except AttributeError:
-                continue
+            continue
     print('driver.close()')
     driver.close()
     return list_of_hashrate, quantity_of_rigs
