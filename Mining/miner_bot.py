@@ -12,6 +12,7 @@ import mineros
 import monitoring_of_rigs_wooly_pooly as pool
 import monitoring_price_changes_minings_coins
 import mytoken
+import requests.exceptions
 
 storage = MemoryStorage()
 bot = Bot(mytoken.tokenbot_kurs)
@@ -32,11 +33,14 @@ async def send_message(message):
     btn4 = types.KeyboardButton('Старт курсы')
     but.add(btn1, btn2, btn3, btn4)
     global course_change_observer
-    if message.text.lower() == 'старт майнинг':
+
+    course_change_observer = True
+    if message.text == 'x':
+        await bot.send_message(message.from_user.id, "Кнопки", reply_markup=but)
+    elif message.text.lower() == 'старт майнинг':
         course_change_observer = True
         if counter() < 2:
             await bot.send_message(message.from_user.id, "запуск отслеживания майнинга...", reply_markup=but)
-
             await monitoring_number_of_rigs(message)
         elif counter() >= 1 and course_change_observer:
             await bot.send_message(message.from_user.id, "старт уже был нажат")
@@ -44,8 +48,8 @@ async def send_message(message):
         course_change_observer = False
         reset_counter()
     elif message.text.lower() == 'старт курсы':
-        await monitoring_price_changes(message)
         await bot.send_message(message.from_user.id, 'запуск отслеживания курсов валют...', reply_markup=but)
+        await monitoring_price_changes(message)
     elif message.text.lower() == 'курсы':
         for i in eth_btc.get_cource():
             await bot.send_message(message.from_user.id, i)
@@ -85,21 +89,31 @@ async def monitoring_price_changes(message):
     """Получаем информацию о ценах и их изменениях и отправляем соответствующее сообщение"""
     while True:
         print('while')
-        list_of_coins = '\n'.join(eth_btc.get_cource())
+        try:
+            list_of_coins = '\n'.join(eth_btc.get_cource())
+        except (requests.exceptions.ConnectionError, ConnectionResetError):
+            await bot.send_message(message.from_user.id, text="Нет данных по изменениям: https://www.rbc.ru/ не доступен")
         await bot.send_message(message.from_user.id, text=list_of_coins)
-        for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
-            try:
-                print('i[2][:-3] = ', i[2][:-3])
-                if i[2] == 'N/':
-                    await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
-                elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
-                    await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2][:-2].
-                                           translate({ord(i): None for i in '()'}))
-            except ValueError:
-                await bot.send_message(message.from_user.id, text=i[0]+" Нет данных ")
-        cource_rub_usd = USD_RUB.main()
-        await bot.send_message(message.from_user.id, text=cource_rub_usd)
-        print(cource_rub_usd)
+        try:
+            for i in monitoring_price_changes_minings_coins.getting_coin_attributes():
+                try:
+                    print('i[2][:-3] = ', i[2][:-3])
+                    if i[2] == 'N/':
+                        await bot.send_message(message.from_user.id, text="По изменениям нет данных ")
+                    elif float(i[2][:-3]) > 15 or float(i[2][:-3]) < -15:
+                        await bot.send_message(message.from_user.id, text=i[0] + i[1] + " Изменение больше 15%  " + i[2][:-2].
+                                               translate({ord(i): None for i in '()'}))
+                except ValueError:
+                    await bot.send_message(message.from_user.id, text=i[0]+" Нет данных ")
+        except (requests.exceptions.ConnectionError, ConnectionResetError):
+            await bot.send_message(message.from_user.id, text="Нет данных по изменениям: www.hashrate.no не доступен")
+            print("www.hashrate.no не доступен")
+        try:
+            cource_rub_usd = USD_RUB.main()
+            await bot.send_message(message.from_user.id, text=cource_rub_usd)
+            print(cource_rub_usd)
+        except (requests.exceptions.ConnectionError, ConnectionResetError):
+            await bot.send_message(message.from_user.id, text="Нет данных по курсу USD: https://cbr.ru/ не доступен ")
         await asyncio.sleep(3600)
 
 
@@ -144,8 +158,6 @@ async def monitoring_number_of_rigs(message):
         elif quantity_rigs_online == quantity_rigs:
             mineros.period = 3600
         await asyncio.sleep(mineros.period)
-
-
 while True:
     try:
         executor.start_polling(dp)
