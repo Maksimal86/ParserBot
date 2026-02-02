@@ -175,6 +175,7 @@ class Basic(ABC):
         except NoSuchElementException:
             return None
 
+
     @staticmethod
     def get_double_line_cell_text(data_cell):
         """

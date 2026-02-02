@@ -105,7 +105,7 @@ class EveningRequest(armtek.Basic):
         """
         print("run check_delivery_date")
         try:
-            if (date.today() - datetime.timedelta(days=1)).strftime("%d.%m.%Y") == \
+            if (date.today() - datetime.timedelta(days=0)).strftime("%d.%m.%Y") == \
                     self.delivery_date and self.invoice_date is None or \
                     date.today().strftime("%d.%m.%Y") == self.delivery_date and self.invoice_date is None:
                 print('\tcheck_delivery_date True')

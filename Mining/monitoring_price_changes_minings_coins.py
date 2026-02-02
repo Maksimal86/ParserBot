@@ -11,7 +11,7 @@ def get_url():
 
 
 def get_soup():
-    responce = requests.get(get_url())
+    responce = requests.get(get_url(),timeout=30)
     texthtmlpage = BeautifulSoup(responce.content, 'lxml')
     soup = BeautifulSoup(texthtmlpage.encode('cp1251', errors='replace').decode('cp1251'), 'lxml')
     return soup
