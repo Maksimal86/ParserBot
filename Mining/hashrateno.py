@@ -2,7 +2,7 @@
 import time, re
 from selenium.webdriver.common.by import By
 import requests, lxml
-from Selenium_Driver import get_driver_selenium_chrome
+from Mining.Selenium_Driver import get_driver_selenium_chrome
 from bs4 import BeautifulSoup
 
 

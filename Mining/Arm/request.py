@@ -3,15 +3,13 @@ import asyncio
 import datetime
 import logging
 import sys
-
+import main_armtek
+import timer
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from Mining import hashrateno
+from Mining import mytoken
 
-import hashrateno
-import main_armtek
-import monitoring_the_number_of_rings_rplant as rplant
-import mytoken
-import timer
 
 # создали хранилище памяти
 storage = MemoryStorage()
@@ -32,11 +30,7 @@ async def send_message(message, state):
     global course_change_observer
     course_change_observer = False
     print(message.text.lower(), message)
-    if message.text.lower() == 'хешрейт':
-        hashrate = rplant.monitoring_of_mining()
-        await bot.send_message(message.from_user.id, 'мгновенный хешрейт - ' + hashrate[1]
-                               + '\n средний хешрейт - ' + hashrate[2], reply_markup=but)
-    elif message.text.lower() == 'старт':
+    if message.text.lower() == 'старт':
         await bot.send_message(message.from_user.id, "запуск...", reply_markup=but)
         print('course_change_observer =', course_change_observer)
         if not course_change_observer and counter() == 1:
@@ -113,7 +107,7 @@ async def monitoring_armtek_delivery(message, but):
 try:
     executor.start_polling(dp, skip_updates=False)
 except:
-    with open('log.txt', 'a', encoding='utf-8') as log:
+    with open('../log.txt', 'a', encoding='utf-8') as log:
         log.write('start_polling ' + str(datetime.datetime.now()) + ' нет соединения ' + str(sys.exc_info()) + '\n')
 
 

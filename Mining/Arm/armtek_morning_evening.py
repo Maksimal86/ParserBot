@@ -3,7 +3,7 @@
 import datetime
 import sys
 import time
-import armtek
+from Mining.Arm import armtek
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, timedelta
 

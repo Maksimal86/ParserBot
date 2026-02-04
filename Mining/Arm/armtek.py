@@ -2,7 +2,7 @@ import datetime
 import json
 import sys
 import time
-import mytoken
+from Mining import mytoken
 from abc import ABC, abstractmethod
 from datetime import date, timedelta
 from json import JSONDecodeError
@@ -10,8 +10,8 @@ from selenium.common import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from Selenium_Driver import get_driver_selenium_chrome
-from Selenium_Driver import get_driver_selenium_edge
+from Mining.Selenium_Driver import get_driver_selenium_chrome
+from Mining.Selenium_Driver import get_driver_selenium_edge
 
 
 class Basic(ABC):
@@ -54,7 +54,7 @@ class Basic(ABC):
         time.sleep(5)
         print('run set_cookies')
         try:
-            with open('sess.txt') as sess:
+            with open('Arm\sess.txt') as sess:
                 cookies = json.load(sess)  # забираем куки из файла
             k = self.driver.get_cookies()
             print(k)
@@ -68,7 +68,7 @@ class Basic(ABC):
         print("run write_of_cookies_in_file")
         self.driver.refresh()
         cookies = self.driver.get_cookies()
-        with open('sess.txt', 'w') as file:
+        with open('Arm\sess.txt', 'w') as file:
             json.dump(cookies, file)
 
     def log_in_armtek(self):
@@ -223,7 +223,7 @@ class Basic(ABC):
         :return: True, если добавлено, False, если комментарий уже есть
         """
         print('\trun record_comment')
-        with open('armtek.txt', 'r+', encoding='utf-8') as f:
+        with open('Arm\\armtek.txt', 'r+', encoding='utf-8') as f:
             strings = f.readlines()
             strings = [line.strip() for line in strings]
             if comment.strip() in strings:

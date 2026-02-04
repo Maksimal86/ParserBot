@@ -3,7 +3,7 @@
 import traceback
 import datetime
 import time
-import armtek_morning_evening as ame
+from Mining.Arm import armtek_morning_evening as ame
 
 
 def select_of_class():
